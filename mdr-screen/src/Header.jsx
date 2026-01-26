@@ -1,7 +1,9 @@
 import  lumonLogo  from './assets/lumon1-test.svg'
 
+//TO DO: make the background opaque behind the Lumon globe logo
+
 function Header () {
-  let filename = 'Dranesville'
+  const filename = 'Dranesville'
 
   return (
     <div className='header'>
