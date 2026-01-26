@@ -8,6 +8,7 @@ import Footer from './Footer'
 // Make the logo opaque
 // find out out to make the font "swollen"
 // make the font micro-stripy?
+// change the cursor color to terminal color
 
 
 function App() {

@@ -75,6 +75,7 @@ hr {
   color: var(--terminal-color);
   border: 0px;
   cursor: default;
+  transition: transform 0.2s cubic-bezier(0.42, 0, 1, 1);
 }
 
 .numbers:hover {
@@ -82,6 +83,7 @@ hr {
   font-size: 1.2rem;
   border: 0px;
   cursor: default;
+  transform: scale(3, 3);
 }
 
 .binContainer {
