@@ -21,7 +21,7 @@ function Data () {
   const [unrefinedData, setUnrefinedData]  = useState([]);
   const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
   const [visibleData, setVisibleData] = useState([]);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  //const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
@@ -113,16 +113,29 @@ function Data () {
   }, [marginSize.left, marginSize.top])
 
   const handleMouseOver = useCallback((e) => {
+    //const radius = 100;
+    //const cursorX = e.clientX;
+    //const cursorY = e.clientY;
+    //const visibleWindowRect = visibleWindowRef.current.getBoundingClientRect();
+    //const mx = cursorX - (visibleWindowRect.width / 2);
+    //const my = cursorY - (visibleWindowRect.height / 2);
+    //console.log('x', cursorX, 'y', cursorY)
+
     if (e.target.classList.contains('numbers')) {
-      const hovered = Array.prototype.indexOf.call(e.target.parentNode.children, e.target)
-      setHoveredIndex(hovered);
-      console.log(hoveredIndex)
+      const hoveredIndex = Array.prototype.indexOf.call(e.target.parentNode.children, e.target);
+      const hoveredDiv = dataContainerRef.current.children[hoveredIndex];
+      hoveredDiv.style.transform = 'perspective(100px) translateZ(65px)';
+      hoveredDiv.style.transition = 'transform 0.4s ease-in-and-out';
     }
-  }, [hoveredIndex]);
+  },[]);
 
   const handleMouseOut = useCallback((e) => {
-    setHoveredIndex(null)
-  }, [])
+    if (e.target.classList.contains('numbers')) {
+      const hoveredIndex = Array.prototype.indexOf.call(e.target.parentNode.children, e.target);
+      const hoveredDiv = dataContainerRef.current.children[hoveredIndex];
+      hoveredDiv.style.transform = '';
+    }
+  }, []);
 
   const isVisibleData = () => {
     const dataContainer = dataContainerRef.current;
@@ -173,11 +186,11 @@ function Data () {
       >
         {unrefinedData.map((data, index) => {
           const isCurrentVisibleElement = visibleData.some((element) => element === index)
-          const isHoveredElement = hoveredIndex === index
           
           return(
             <div 
-              className={`numbers ${isCurrentVisibleElement?'swingData' : ''} ${isHoveredElement? 'hovered' : ''}`}              key={index}
+              className={`numbers ${isCurrentVisibleElement?'swingData' : ''}`}            
+              key={index}
               style={{
                 '--delay': data.delay
               }}

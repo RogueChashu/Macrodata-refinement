@@ -75,7 +75,7 @@ hr {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(30, 1fr);
-  gap: 14px;
+  gap: 18px;
   top: 0;
   left: 0;
   transition: margin 0.35s ease-in-out;
@@ -84,7 +84,7 @@ hr {
 .numbers {
   cursor: default;
   transition: transform 0.3s linear;
-  padding: 15px;
+  padding: 14px;
   font-size: 1.1rem;
   font-weight: bold;
   text-align: center;
@@ -121,12 +121,13 @@ hr {
   animation: none;
 }
 
-.hovered:hover {
+/*
+.hovered {
   cursor: default;
-  transform: scale(2.5, 2.5);
-  transition: transform 0.15s linear;
+  transform: scale(3.5, 3.5);
+  transition: transform 0.3s linear;
   will-change: transform;
-} 
+} */
 
 .binContainer {
   display: grid;
