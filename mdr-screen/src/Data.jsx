@@ -72,10 +72,10 @@ function Data () {
 
   useEffect(() => {
     const visibleWindow = visibleWindowRef.current;
-    visibleWindow && visibleWindow.addEventListener('keydown', handleKeyMove)
+    visibleWindow.addEventListener('keydown', handleKeyMove);
 
     return () => {
-      visibleWindow && visibleWindow.removeEventListener('keydown', handleKeyMove)
+      visibleWindow.removeEventListener('keydown', handleKeyMove);
     }
   }, [handleKeyMove])
 
@@ -121,19 +121,21 @@ function Data () {
   useEffect(() => {
     const visibleWindow = visibleWindowRef.current;
 
-    visibleWindow && visibleWindow.addEventListener('mousemove', handleMouseMove)
+    visibleWindow.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      visibleWindow && visibleWindow.removeEventListener('mousemove', handleMouseMove)
+      visibleWindow.removeEventListener('mousemove', handleMouseMove)
     }
   }, [handleMouseMove])
 
+/*
   const cursorHoverMagnify = useCallback((e) => {
     const cursorX = e.clientX;
     const cursorY = e.clientY;
-    const dataContainerRect = dataContainerRef.current.getBoundingClientRect();
+    //const dataContainerRect = dataContainerRef.current.getBoundingClientRect();
 
-    //console.log('x:', cursorX, 'y:', cursorY)
+    console.log('x:', cursorX, 'y:', cursorY)
+    console.log(visibleWindowRef.current.getBoundingClientRect())
   }, [])
 
   useEffect(() => {
@@ -143,26 +145,28 @@ function Data () {
     return () => {
       visibleWindow && visibleWindow.removeEventListener('mousemove', cursorHoverMagnify  )
     }
-  }, [cursorHoverMagnify])
+  }, [cursorHoverMagnify]) */
 
   useEffect(() => {
     const dataContainer = dataContainerRef.current;
     const visibleWindow = visibleWindowRef.current;
 
     if (dataContainer && visibleWindow) {
-      const visibleChildren = Array.from(dataContainer.children).filter((child) => {
+      const visibleChildren = Array.from(dataContainer.children).map((child, index) => {
         const childRect = child.getBoundingClientRect();
         const windowRect = visibleWindow.getBoundingClientRect();
+        // 50px tolerance zone added in the upcoming bounds check so we don't have non swinging data
+        // on the edges of the visible window.
         return (
-          childRect.top >= windowRect.top &&
-          childRect.bottom <= windowRect.bottom &&
-          childRect.left >= windowRect.left &&
-          childRect.right <= windowRect.right
-        );
-      })
+          childRect.top >= windowRect.top - 50 &&
+          childRect.bottom <= windowRect.bottom + 50 &&
+          childRect.left >= windowRect.left -50 &&
+          childRect.right <= windowRect.right + 50
+         ) ? index : null
+      }).filter(index => index !== null)
       setVisibleData(visibleChildren);
     }
-  }, [marginSize])
+  }, [unrefinedData, marginSize])
 
   return (
     <div 
@@ -183,12 +187,10 @@ function Data () {
         }}
       >
         {unrefinedData.map((data, index) => {
-          const isCurrentVisibleElement = visibleData.some(
-            (element) => element.textContent === data.value.toString()
-          );
+          const isCurrentVisibleElement = visibleData.some((element) => element === index)
           return(
             <div 
-              className={`numbers ${isCurrentVisibleElement ? 'wiggleData' : ''}`}
+              className={`numbers ${isCurrentVisibleElement ? 'swingData' : ''}`}
               key={index}
             >
               {data.value}

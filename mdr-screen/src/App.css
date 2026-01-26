@@ -90,10 +90,9 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
-  /*animation: swing 3s linear infinite; */
 }
 
-.wiggleData {
+.swingData {
   animation: swing 2.5s linear infinite;
 }
 
