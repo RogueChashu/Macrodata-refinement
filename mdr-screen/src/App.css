@@ -75,6 +75,7 @@ hr {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(30, 1fr);
+  gap: 14px;
   top: 0;
   left: 0;
   transition: margin 0.35s ease-in-out;
@@ -83,15 +84,16 @@ hr {
 .numbers {
   cursor: default;
   transition: transform 0.3s linear;
-  padding: 16px;
-  font-size: 0.85rem;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
   text-align: center;
   aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
+/*
 .swingData {
   animation: swing 2.5s linear infinite;
   animation-delay: calc(var(--delay) * 1s)
@@ -102,25 +104,25 @@ hr {
     transform: translateX(0px);
   }
   25% {
-    transform: translateX(4px);
+    transform: translateX(3.5px);
   }
   50% {
     transform: translateX(0px);
   }
   75% {
-    transform: translateX(-4px);
+    transform: translateX(-3.5px);
   }
   100% {
     transform: translateX(0px);
   }
 }
-
-/*
-.numbers:hover {
-  font-weight: bold;
+*/
+.hovered:hover {
   cursor: default;
-  transform: scale(3.2, 3.2);
-} */
+  transform: scale(3, 3);
+  transition: transform 0.1s linear;
+  will-change: transform;
+} 
 
 .binContainer {
   display: grid;

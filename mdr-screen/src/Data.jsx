@@ -21,6 +21,7 @@ function Data () {
   const [unrefinedData, setUnrefinedData]  = useState([]);
   const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
   const [visibleData, setVisibleData] = useState([]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
@@ -111,27 +112,19 @@ function Data () {
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
   }, [marginSize.left, marginSize.top])
 
-/*
-  const cursorHoverMagnify = useCallback((e) => {
+  const handleMouseOver = useCallback((e) => {
     if (e.target.classList.contains('numbers')) {
-      const index = Array.prototype.indexOf.call(e.target.parentNode.children, e.target)
-
-      console.log('Hovered:', index);
+      const hovered = Array.prototype.indexOf.call(e.target.parentNode.children, e.target)
+      setHoveredIndex(hovered);
+      console.log(hoveredIndex)
     }
-  }, []);
- 
-  useEffect(() => { //mouseover, no?
-  useLayoutEffect(() => {
-    const visibleWindow = visibleWindowRef.current;
-    visibleWindow.addEventListener('mousemove', cursorHoverMagnify)
+  }, [hoveredIndex]);
 
-    return () => {
-      visibleWindow.removeEventListener('mousemove', cursorHoverMagnify  )
-    }
-  }, [cursorHoverMagnify, visibleWindowRef]) 
-*/
+  const handleMouseOut = useCallback((e) => {
+    setHoveredIndex(null)
+  }, [])
 
-  useEffect(() => {
+  const isVisibleData = () => {
     const dataContainer = dataContainerRef.current;
     const visibleWindow = visibleWindowRef.current;
 
@@ -150,6 +143,10 @@ function Data () {
       }).filter(index => index !== null)
       setVisibleData(visibleChildren);
     }
+  }
+
+  useEffect(() => {
+    isVisibleData()
   }, [unrefinedData, marginSize.left, marginSize.top])
 
   return (
@@ -158,6 +155,8 @@ function Data () {
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
+      onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
       tabIndex={-1} 
       style={{
         position: 'relative',
@@ -174,11 +173,11 @@ function Data () {
       >
         {unrefinedData.map((data, index) => {
           const isCurrentVisibleElement = visibleData.some((element) => element === index)
+          const isHoveredElement = hoveredIndex === index
           
           return(
             <div 
-              className={`numbers ${isCurrentVisibleElement ? 'swingData' : ''}`}
-              key={index}
+              className={`numbers ${isCurrentVisibleElement?'swingData' : ''} ${isHoveredElement? 'hovered' : ''}`}              key={index}
               style={{
                 '--delay': data.delay
               }}
