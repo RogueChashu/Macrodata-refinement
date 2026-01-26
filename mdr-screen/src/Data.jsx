@@ -21,7 +21,6 @@ function Data () {
   const [unrefinedData, setUnrefinedData]  = useState([]);
   const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
   const [visibleData, setVisibleData] = useState([]);
-  //const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
@@ -114,9 +113,16 @@ function Data () {
 
   const handleMouseOver = useCallback((e) => {
     //const radius = 100;
-    //const cursorX = e.clientX;
-    //const cursorY = e.clientY;
-    //const visibleWindowRect = visibleWindowRef.current.getBoundingClientRect();
+    const cursorX = e.clientX;
+    const cursorY = e.clientY;
+    console.log('x', cursorX, 'y', cursorY)
+
+    const mx = cursorX - (window.innerWidth / 2);
+    const my = cursorY - (window.innerHeight / 2);
+
+    console.log(mx,my);
+    //const visibleWindow = visibleWindowRef.current;
+    //const element = document.elementFromPoint(cursorX, cursorY)
     //const mx = cursorX - (visibleWindowRect.width / 2);
     //const my = cursorY - (visibleWindowRect.height / 2);
     //console.log('x', cursorX, 'y', cursorY)
@@ -124,6 +130,9 @@ function Data () {
     //styling be applied using coords?
     //NEED TO LINK COORDS TO DIV
     if (e.target.classList.contains('numbers')) {
+      //console.log(element)
+      //const test = document.elementFromPoint(cursorX+140, cursorY)
+      //console.log(test)
       const hoveredDiv = e.target;
       hoveredDiv.classList.add('hovered');
     }

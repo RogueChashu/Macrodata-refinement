@@ -1,7 +1,7 @@
 function Footer() {
   return(
     <div className='hexacode'>
-      0x15DB4A : 0x0AEAFC
+      0x137E12 : 0x098CF9
     </div>
   )
 }

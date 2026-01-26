@@ -137,9 +137,18 @@ hr {
 
 .binContainer > div {
   margin: 0.2rem 1.75rem;
-  text-align: center;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+}
+
+.binContainer .bin {
+  text-align: center;
+
+}
+
+.binContainer .binProgress {
+  text-align: left;
+  padding-left: 2px;
 }
 
 .hexacode {
