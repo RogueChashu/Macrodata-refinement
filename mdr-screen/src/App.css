@@ -1,3 +1,10 @@
+/*TO DO: 
+Find a similar font
+find out out to make the font "swollen"
+make the font micro-stripy?
+change the cursor color to terminal color
+*/
+
 /*
 @font-face {
   font-family: severance;
@@ -13,15 +20,16 @@
 #root {
   width: 100%;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   color: var(--terminal-color);
   background: radial-gradient(#00476d, #02162d, #011227);
   font-weight: bolder;
   font-size: 20px;
   text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
   filter: contrast(0.8) blur(0.5px);
-  font-family: "severance";
 }
-
 
 .header {
   margin: 1.5rem 2.5rem;
@@ -49,39 +57,38 @@
   height: 6rem;
 }
 
-.svg-path {
-  fill: yellow;/*var(--terminal-color);*/
-  fill-opacity: 1;
+hr {
+  border-top: 2.7px solid var(--terminal-color);
+  margin: 3px 0;
 }
 
-hr {
-  border-top: 3px solid var(--terminal-color);
-  margin: 3px;
+.visibleWindow {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .dataContainer {
   padding: 4px 0;
-
   display: grid;
-  grid-template-columns: repeat(21, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  height: 500px;
+  grid-template-columns: repeat(25, 1fr);
+  grid-template-rows: repeat(25, 1fr);
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  overflow: auto;
+  height: 100%;
 }
 
 .numbers {
-  background-color: transparent;
-  color: var(--terminal-color);
-  border: 0px;
   cursor: default;
-  transition: transform 0.2s cubic-bezier(0.42, 0, 1, 1);
+  transition: transform 0.35s ease-in-out;
+  padding: 4px;
+  font-size: 1.5rem;
 }
 
 .numbers:hover {
   font-weight: bold;
-  font-size: 1.2rem;
-  border: 0px;
   cursor: default;
   transform: scale(3, 3);
 }
