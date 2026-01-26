@@ -64,11 +64,7 @@ function Data () {
       default:
         break
     }
-    console.log('x pos:', arrayPosition)
-    console.log('data:', dataRect)
-    console.log('window', windowRect)
-
-  }, [arrayPosition,setArrayPosition])
+  }, [setArrayPosition])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
