@@ -122,17 +122,17 @@ function Data () {
     //console.log('x', cursorX, 'y', cursorY)
     //NEED TO READ THE COORDS OF NEARBY ELEMENTS" we already know the mouse ones. Should the
     //styling be applied using coords?
+    //NEED TO LINK COORDS TO DIV
     if (e.target.classList.contains('numbers')) {
       const hoveredDiv = e.target;
-      hoveredDiv.style.transform = 'perspective(100px) translateZ(65px)';
-      hoveredDiv.style.transition = 'transform 0.4s ease-in-and-out';
+      hoveredDiv.classList.add('hovered');
     }
   },[]);
 
   const handleMouseOut = useCallback((e) => {
     if (e.target.classList.contains('numbers')) {
       const hoveredDiv = e.target;
-      hoveredDiv.style.transform = '';
+      hoveredDiv.classList.remove('hovered');
     }
   }, []);
 

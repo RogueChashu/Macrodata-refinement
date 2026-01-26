@@ -75,6 +75,7 @@ hr {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(30, 1fr);
+  /* gap necessary to be able to mouse over consecutive numbers and have them scale*/
   gap: 18px;
   top: 0;
   left: 0;
@@ -83,7 +84,6 @@ hr {
 
 .numbers {
   cursor: default;
-  transition: transform 0.3s linear;
   padding: 14px;
   font-size: 1.1rem;
   font-weight: bold;
@@ -92,6 +92,7 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.5s ease-in-out;
 }
 
 .swingData {
@@ -121,13 +122,10 @@ hr {
   animation: none;
 }
 
-/*
 .hovered {
-  cursor: default;
-  transform: scale(3.5, 3.5);
-  transition: transform 0.3s linear;
-  will-change: transform;
-} */
+  transform: scale(2.7);
+  /* other option: perspective(100px) translateZ(65px) */
+}
 
 .binContainer {
   display: grid;
