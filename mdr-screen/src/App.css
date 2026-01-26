@@ -93,7 +93,7 @@ hr {
   justify-content: center;
   align-items: center;
 }
-/*
+
 .swingData {
   animation: swing 2.5s linear infinite;
   animation-delay: calc(var(--delay) * 1s)
@@ -116,11 +116,15 @@ hr {
     transform: translateX(0px);
   }
 }
-*/
+
+.swingData:hover {
+  animation: none;
+}
+
 .hovered:hover {
   cursor: default;
-  transform: scale(3, 3);
-  transition: transform 0.1s linear;
+  transform: scale(2.5, 2.5);
+  transition: transform 0.15s linear;
   will-change: transform;
 } 
 
