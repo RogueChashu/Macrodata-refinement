@@ -10,6 +10,7 @@ function _generateData () {
 
   const data = Array.from({length: (rows * columns)}, () => ({
     value: Math.floor(Math.random()*10),
+    delay: Math.random() * 2.5,
     bad: false,
   }));
 
@@ -68,23 +69,15 @@ function Data () {
         break
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [marginSize])
-
-  useEffect(() => {
-    const visibleWindow = visibleWindowRef.current;
-    visibleWindow.addEventListener('keydown', handleKeyMove);
-
-    return () => {
-      visibleWindow.removeEventListener('keydown', handleKeyMove);
-    }
-  }, [handleKeyMove])
+  }, [marginSize.left, marginSize.top])
 
   const handleMouseMove = useCallback((e) => {
+    const cursorX = e.clientX;
+    const cursorY = e.clientY;
+
     const stepSize = 20
     const dataRect = dataContainerRef.current.getBoundingClientRect()
     const windowRect = visibleWindowRef.current.getBoundingClientRect()
-    const cursorX = e.clientX
-    const cursorY = e.clientY
     const modify = {}
 
     // 30px detection zone chosen because smaller felt narrow
@@ -116,36 +109,27 @@ function Data () {
       }
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [marginSize])
-
-  useEffect(() => {
-    const visibleWindow = visibleWindowRef.current;
-
-    visibleWindow.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      visibleWindow.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [handleMouseMove])
+  }, [marginSize.left, marginSize.top])
 
 /*
   const cursorHoverMagnify = useCallback((e) => {
-    const cursorX = e.clientX;
-    const cursorY = e.clientY;
-    //const dataContainerRect = dataContainerRef.current.getBoundingClientRect();
+    if (e.target.classList.contains('numbers')) {
+      const index = Array.prototype.indexOf.call(e.target.parentNode.children, e.target)
 
-    console.log('x:', cursorX, 'y:', cursorY)
-    console.log(visibleWindowRef.current.getBoundingClientRect())
-  }, [])
-
-  useEffect(() => {
+      console.log('Hovered:', index);
+    }
+  }, []);
+ 
+  useEffect(() => { //mouseover, no?
+  useLayoutEffect(() => {
     const visibleWindow = visibleWindowRef.current;
-    visibleWindow && visibleWindow.addEventListener('mousemove', cursorHoverMagnify)
+    visibleWindow.addEventListener('mousemove', cursorHoverMagnify)
 
     return () => {
-      visibleWindow && visibleWindow.removeEventListener('mousemove', cursorHoverMagnify  )
+      visibleWindow.removeEventListener('mousemove', cursorHoverMagnify  )
     }
-  }, [cursorHoverMagnify]) */
+  }, [cursorHoverMagnify, visibleWindowRef]) 
+*/
 
   useEffect(() => {
     const dataContainer = dataContainerRef.current;
@@ -166,12 +150,14 @@ function Data () {
       }).filter(index => index !== null)
       setVisibleData(visibleChildren);
     }
-  }, [unrefinedData, marginSize])
+  }, [unrefinedData, marginSize.left, marginSize.top])
 
   return (
     <div 
       id='visibleWindow' 
       ref={visibleWindowRef}
+      onKeyDown={handleKeyMove}
+      onMouseMove={handleMouseMove}
       tabIndex={-1} 
       style={{
         position: 'relative',
@@ -188,13 +174,13 @@ function Data () {
       >
         {unrefinedData.map((data, index) => {
           const isCurrentVisibleElement = visibleData.some((element) => element === index)
-          const delay = Math.random() * 2.5;
+          
           return(
             <div 
               className={`numbers ${isCurrentVisibleElement ? 'swingData' : ''}`}
               key={index}
               style={{
-                '--delay': delay
+                '--delay': data.delay
               }}
             >
               {data.value}
