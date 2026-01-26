@@ -1,21 +1,53 @@
+import { useEffect, useRef } from 'react';
+import BinContainer from './BinContainer';
 
-function Bins ({ binRefs }) {
+function Bins ({ onResize, binRefs, openedBinIndexRef, triggerMoveToBin }) {
 
-  if (!binRefs) return;
-  
+  //console.log("BINS RE-RENDER")
+  const binSectionRef = useRef(null);
+
+  if (!binRefs?.current) return null;
+
+  useEffect(() => {
+    const binSection = binSectionRef.current;
+    if (!binSection) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      onResize();
+    });
+
+    resizeObserver.observe(binSection);
+
+    return () => {
+      resizeObserver.unobserve(binSection);
+    }
+  },[]);
+
   return (
-    <div className='binContainer'>
+    <div
+    ref={binSectionRef}
+    className='wasteSection'
+    >
+      {binRefs.current.map((binRef, index) => {
+        const binNumber = index + 1;
+        const isOpen = openedBinIndexRef.current === index;
 
-      {binRefs.current.map((bin, index) => (
-        <div key={index} className={'bin' + '0' + (index + 1)}>{'0' + (index + 1)}</div>
+        return (
+          <BinContainer
+            key={index}
+            binRef={binRef}
+            binNumber={binNumber}
+            isOpen={isOpen}
+            triggerMoveToBin={triggerMoveToBin}
+          />
+        );
+      })}
+
+      {binRefs.current.map((_, index) => (
+        <div key={`progress-${index}`} className={'binProgress0' + (index + 1)}>0%</div>
       ))}
-
-      {binRefs.current.map((bin, index) => (
-        <div key={index} className={'binProgress' + '0' + (index + 1)}>0%</div>
-      ))}
-
     </div>
-  )
+  );
 }
 
 export default Bins
