@@ -1,0 +1,3 @@
+1- limited the eventListeners to visibleWindow in lieu of document
+
+

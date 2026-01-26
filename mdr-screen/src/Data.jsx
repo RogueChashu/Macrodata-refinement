@@ -18,24 +18,25 @@ function _generateData () {
 
 function Data () {
   const [unrefinedData, setUnrefinedData]  = useState([]);
-  const [marginSize, setMarginSize] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
+  const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
+  const [visibleData, setVisibleData] = useState([]);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
   const focusDummyRef = useRef(null);
 
   useEffect(() => {
-    // Data is generated inside a useEffect so that each render doesn't generate a new data set
+    // Data is generated inside a useEffect w/ empty dep so that each render doesn't generate a new data set
     setUnrefinedData(_generateData())
-    // to ensure focus is inside visible window on loading (no need to click inside numbers window to start navigating): 
+    //capture the initial focus when the component mounts, allowing the user to navigate the visibleWindow 
+    // without needing to click on it first: 
     focusDummyRef && focusDummyRef.current.focus()
   }, [])
 
-  const handleKeyDown = useCallback((e) => {
+  const handleKeyMove = useCallback((e) => {
     const stepSize = 20
-
-    const dataRect = document.getElementById('dataContainer').getBoundingClientRect()
-    const windowRect = document.getElementById('visibleWindow').getBoundingClientRect()
+    const dataRect = dataContainerRef.current.getBoundingClientRect()
+    const windowRect = visibleWindowRef.current.getBoundingClientRect()
     const modify = {}
 
     switch (e.key){
@@ -67,33 +68,33 @@ function Data () {
         break
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [setMarginSize, marginSize])
+  }, [marginSize])
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
+    const visibleWindow = visibleWindowRef.current;
+    visibleWindow && visibleWindow.addEventListener('keydown', handleKeyMove)
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown)
+      visibleWindow && visibleWindow.removeEventListener('keydown', handleKeyMove)
     }
-  }, [handleKeyDown])
+  }, [handleKeyMove])
 
   const handleMouseMove = useCallback((e) => {
     const stepSize = 20
-
-    const dataRect = document.getElementById('dataContainer').getBoundingClientRect()
-    const windowRect = document.getElementById('visibleWindow').getBoundingClientRect()
+    const dataRect = dataContainerRef.current.getBoundingClientRect()
+    const windowRect = visibleWindowRef.current.getBoundingClientRect()
     const cursorX = e.clientX
     const cursorY = e.clientY
     const modify = {}
 
-    // 40px detection zone chosen because smaller felt narrow
-    if (cursorX < windowRect.left + 40) { 
+    // 30px detection zone chosen because smaller felt narrow
+    if (cursorX < windowRect.left + 30) { 
       if (dataRect.left + stepSize <= 0) { // go to the left
         modify.left = marginSize.left + stepSize;
       } else {
         modify.left = 0;
       }
-    } else if (cursorX > windowRect.right - 40) {
+    } else if (cursorX > windowRect.right - 30) {
       if (dataRect.right - stepSize >= windowRect.right) { // go the the right
         modify.left = marginSize.left - stepSize;
       } else {
@@ -101,13 +102,13 @@ function Data () {
       }
     }
 
-    if (cursorY < windowRect.top + 40) {
+    if (cursorY < windowRect.top + 30) {
       if (dataRect.top + stepSize <= windowRect.top) { // go up
         modify.top = marginSize.top + stepSize;
       } else {
         modify.top = 0;
       }
-    } else if (cursorY > windowRect.bottom - 40) {
+    } else if (cursorY > windowRect.bottom - 30) {
       if (dataRect.bottom - stepSize >= windowRect.bottom) { // go down
         modify.top= marginSize.top - stepSize;
       } else {
@@ -115,15 +116,53 @@ function Data () {
       }
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [setMarginSize, marginSize])
+  }, [marginSize])
 
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove)
+    const visibleWindow = visibleWindowRef.current;
+
+    visibleWindow && visibleWindow.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
+      visibleWindow && visibleWindow.removeEventListener('mousemove', handleMouseMove)
     }
   }, [handleMouseMove])
+
+  const cursorHoverMagnify = useCallback((e) => {
+    const cursorX = e.clientX;
+    const cursorY = e.clientY;
+    const dataContainerRect = dataContainerRef.current.getBoundingClientRect();
+
+    //console.log('x:', cursorX, 'y:', cursorY)
+  }, [])
+
+  useEffect(() => {
+    const visibleWindow = visibleWindowRef.current;
+    visibleWindow && visibleWindow.addEventListener('mousemove', cursorHoverMagnify)
+
+    return () => {
+      visibleWindow && visibleWindow.removeEventListener('mousemove', cursorHoverMagnify  )
+    }
+  }, [cursorHoverMagnify])
+
+  useEffect(() => {
+    const dataContainer = dataContainerRef.current;
+    const visibleWindow = visibleWindowRef.current;
+
+    if (dataContainer && visibleWindow) {
+      const visibleChildren = Array.from(dataContainer.children).filter((child) => {
+        const childRect = child.getBoundingClientRect();
+        const windowRect = visibleWindow.getBoundingClientRect();
+        return (
+          childRect.top >= windowRect.top &&
+          childRect.bottom <= windowRect.bottom &&
+          childRect.left >= windowRect.left &&
+          childRect.right <= windowRect.right
+        );
+      })
+      setVisibleData(visibleChildren);
+    }
+  }, [marginSize])
 
   return (
     <div 
@@ -144,8 +183,16 @@ function Data () {
         }}
       >
         {unrefinedData.map((data, index) => {
+          const isCurrentVisibleElement = visibleData.some(
+            (element) => element.textContent === data.value.toString()
+          );
           return(
-            <div className='numbers' key={index}>{data.value}</div>
+            <div 
+              className={`numbers ${isCurrentVisibleElement ? 'wiggleData' : ''}`}
+              key={index}
+            >
+              {data.value}
+            </div>
           )
         })}
       </div>

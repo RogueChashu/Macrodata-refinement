@@ -93,29 +93,34 @@ hr {
   /*animation: swing 3s linear infinite; */
 }
 
+.wiggleData {
+  animation: swing 2.5s linear infinite;
+}
+
 @keyframes swing {
   0% {
     transform: translateX(0px);
   }
   25% {
-    transform: translateX(3px);
+    transform: translateX(4px);
   }
   50% {
     transform: translateX(0px);
   }
   75% {
-    transform: translateX(-3px);
+    transform: translateX(-4px);
   }
   100% {
     transform: translateX(0px);
   }
 }
 
+/*
 .numbers:hover {
   font-weight: bold;
   cursor: default;
   transform: scale(3.2, 3.2);
-}
+} */
 
 .binContainer {
   display: grid;
