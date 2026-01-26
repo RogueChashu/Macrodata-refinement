@@ -15,17 +15,30 @@ function _generateData () {
       value: Math.floor(Math.random() * 10),
       delay: Math.random() * 2.5,
       bad: false,
+      //targetScale: 3,
+      currentScale: 1,
     }))
   );
 }
+
+const KEYBOARD_SCOLL_CONFIG = {
+  mass: 1,
+  tension: 200, // slower, gentle feel
+  friction: 26
+};
+
+const MOUSE_SCROLL_CONFIG = {
+  mass: 1,
+  tension: 400, //faster, more responsive feel. Higher the value, the snappier it is
+  friction: 40 // the higher the value, the faster it brakes.
+};
 
 function Data () {
   // react-spring manages the animated values, so no scrollPosition state
   const [spring, api] = useSpring(() => ({
     scrollTop: 0,
     scrollLeft: 0,
-    // animation configuration:
-    config: { tension: 210, friction: 20, mass: 1 },
+    config: KEYBOARD_SCOLL_CONFIG,
     onChange: ({ value }) => {
       if (gridRef.current) {
         gridRef.current.scrollTo({
@@ -43,6 +56,9 @@ function Data () {
   const gridRef = useRef(null);
   const animationFrameId = useRef(null);
   const startTimeRef = useRef(performance.now());
+  const mousePosRef = useRef({ x: -999, y: -999 });
+  const edgeScrollIntervalRef = useRef(null);
+  const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.) 
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
@@ -69,14 +85,14 @@ function Data () {
       case 'ArrowRight':
         newScrollLeft = Math.min(
           currentScrollLeft + stepSize,
-          unrefinedDataRef.current[0].length * 75 - gridSize.width
+          unrefinedDataRef.current[0].length * 85 - gridSize.width
         );
         break;
       case 's':
       case 'ArrowDown':
         newScrollTop = Math.min(
           currentScrollTop + stepSize,
-          unrefinedDataRef.current.length * 75 - gridSize.height
+          unrefinedDataRef.current.length * 85 - gridSize.height
         );
         break;
       case 'w':
@@ -93,110 +109,84 @@ function Data () {
   }, [api, spring, gridSize]);
 
   const handleMouseMove = useCallback((e) => {
-    const stepSize = 50;
-    const currentScrollTop = spring.scrollTop.get();
-    const currentScrollLeft = spring.scrollLeft.get();
-    let newScrollTop = currentScrollTop;
-    let newScrollLeft = currentScrollLeft;
-    
-    if (!gridRef.current) return;
+    if (!visibleWindowRef.current || !gridRef.current) return;
 
-    // 30px detection zone chosen because smaller felt narrow
-    //left
-    if (e.clientX < currentScrollLeft + 30) {
-      newScrollLeft = Math.max(0, currentScrollLeft - stepSize);
-    //right
-    } else if (e.clientX > gridSize.width - 30) {
-      newScrollLeft = Math.min(
-        currentScrollLeft + stepSize,
-        unrefinedDataRef.current[0].length*75 - gridSize.width
-      );
+    const rect = visibleWindowRef.current.getBoundingClientRect();
+    mousePosRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+
+    const scrollDetectionZone = 40;
+    let currentEdge = null;
+    
+    // determine which edge the mouse is in, if any 
+    if (e.clientX < rect.left + scrollDetectionZone) {
+      currentEdge = 'left';
+    } else if (e.clientX > rect.right - scrollDetectionZone) {
+      currentEdge = 'right';
+    } else if (e.clientY < rect.top + scrollDetectionZone) {
+      currentEdge = 'up';
+    } else if (e.clientY > rect.bottom - scrollDetectionZone) {
+      currentEdge = 'down';
     }
-    //up    
-    if (e.clientY < currentScrollTop + 30) {
-      newScrollTop = Math.max(0, currentScrollTop - stepSize);
-    //down
-    } else if (e.clientY > gridSize.height - 30) {
-      newScrollTop = Math.min(
-        newScrollTop + stepSize,
-        unrefinedDataRef.current.length * 75 - gridSize.height
-      );
+    //If no change of active edge, return.
+    if (currentEdge === activeEdgeRef.current) return;
+
+    // if edge changes, update the active edge
+    activeEdgeRef.current = currentEdge;
+
+    if (edgeScrollIntervalRef.current) {
+      clearInterval(edgeScrollIntervalRef.current);
+      edgeScrollIntervalRef.current = null;
     }
-    api.start({
-      scrollTop: newScrollTop,
-      scrollLeft: newScrollLeft,
-    })
+
+    if (currentEdge) {
+      const stepSize = 30;
+
+      edgeScrollIntervalRef.current = setInterval(() => {
+        const currentScrollTop = spring.scrollTop.get();
+        const currentScrollLeft = spring.scrollLeft.get();
+        let newScrollTop = currentScrollTop;
+        let newScrollLeft = currentScrollLeft; 
+
+        switch (currentEdge) {
+          case 'left':
+            newScrollLeft = Math.max(0, currentScrollLeft - stepSize);
+            break;
+          case 'right':
+            newScrollLeft = Math.min(currentScrollLeft + stepSize,
+            unrefinedDataRef.current[0].length * 85 - gridSize.width);
+            break;
+          case 'up':
+            newScrollTop = Math.max(0, currentScrollTop - stepSize);
+            break;
+          case 'down':
+            newScrollTop = Math.min(newScrollTop + stepSize,
+            unrefinedDataRef.current.length * 85 - gridSize.height);  
+            break;
+          default:
+            break;
+        }
+
+        api.start({
+          scrollTop: newScrollTop,
+          scrollLeft: newScrollLeft,
+          config: MOUSE_SCROLL_CONFIG,
+        });
+      }, 16)
+    }
   }, [api, spring, gridSize]);
 
-  /*
-  const handleMouseOver = useCallback((e) => {
-    //const radius = 120;
-    //const maxScale = 3;
-    //const minScale = 1;
-    const mouseElement = e.target.closest('.numbers');
-    console.log(e.target);
-    console.log(mouseElement);
-    //const hoveredIndex = [];
+  const handleMouseLeave = useCallback(() => {
+    mousePosRef.current = { x: -999, y:-999 };
 
-    if (!mouseElement) return
-
-    if (mouseElement.id) {
-      const [rowIndex, columnIndex] = mouseElement.id.split('-');
-      console.log('row:', rowIndex, 'col:', columnIndex);
+    if (edgeScrollIntervalRef.current) {
+      clearInterval(edgeScrollIntervalRef.current);
+      edgeScrollIntervalRef.current = null;
+      activeEdgeRef.current = null;
     }
-
-    //  for (let i = rowIndex - 1; i = rowIndex + 1; i++) {
-    //    console.log('i',i)
-        //for (let j = columnIndex - 1; j = columnIndex +1; j++ ) {
-          //console.log('j',j)
-          //hoveredIndex.push(i,'-',j)
-        //}
-        //console.log(hoveredIndex)
-     // }
-    //}
-  },[]);
-  */
-
-/*
-      //const rect = mouseElement.getBoundingClientRect()
-      //console.log(rect)
-    } */
-    
-    /*
-    // calculate the center of the moused over div.
-    const centerRect = centerElement.getBoundingClientRect();
-    const centerX = centerRect.left + centerRect.width / 2;
-    const centerY = centerRect.top + centerRect.height / 2;
-
-    visibleDataRef.current.forEach((datum) => {
-      //calculate the center of each div
-      const rect = datum.getBoundingClientRect();
-      const divX = rect.left + rect.width / 2;
-      const divY = rect.top + rect.height / 2;
-
-      //calculate the dist between this div and the moused div
-      const distX = Math.abs(divX - centerX);
-      const distY = Math.abs(divY - centerY);
-      const dist = Math.sqrt(distX * distX + distY * distY);
-
-      if (dist < radius) {
-        let scale = 1;
-        // SLOW function
-        scale = (((minScale - maxScale) / radius) * dist) + maxScale;
-          
-        datum.classList.add('hovered');
-        datum.style.setProperty('--scaleFactor', scale);
-      } 
-    }) 
-
-  const handleMouseOut = useCallback((e) => {
-    visibleDataRef.current.forEach((div) => {
-      if (div.classList.contains('hovered')) {
-        div.classList.remove('hovered')
-        div.style.setProperty('--scaleFactor', '1');
-      }
-    });
-  }, [visibleDataRef.current]); */1
+  }, []);
 
   function Row({ columnIndex, rowIndex, style }) {
     const data = unrefinedDataRef.current[rowIndex][columnIndex];
@@ -206,7 +196,7 @@ function Data () {
         key={`${rowIndex}-${columnIndex}`}
         id={`${rowIndex}-${columnIndex}`}
         data-delay={data.delay}
-        style={{ 
+        style={{
           ...style,
         }}
       >{data.value}</div>
@@ -241,45 +231,118 @@ function Data () {
     const container = visibleWindowRef.current;
     if (!container) return;
 
-    const targetFPS = 9;
+    const targetFPS = 60;
     const frameTime = 1000 / targetFPS;
-
     let lastFrameTime = 0;
     
     const animate = (timestamp) => {
-      const elapsedTime = timestamp - startTimeRef.current;
+      animationFrameId.current = requestAnimationFrame(animate);
+
       const deltaTime = timestamp - lastFrameTime;
+
+      if (deltaTime < frameTime) return;
+
+      lastFrameTime = timestamp - (deltaTime % frameTime);
+
+      const elapsedTime = timestamp - startTimeRef.current;
       const allNumberDivs = container.querySelectorAll('.numbers');
 
-      // Continue the loop, but controlling the frame rate for GPU usage reasons
-      if (deltaTime >= frameTime) {
+      // Numbers swaying animation parameters
+      const animationDuration = 4000; //4.5s duration
+      const amplitude = 4; //4px movement amplitude
+      const angularFreq = 2 * Math.PI / animationDuration;
 
-        allNumberDivs.forEach(div => {
-          const delay = parseFloat(div.dataset.delay || 0) * 1000;
-          const animationDuration = 3500; //3.5s duration
-          const amplitude = 3.5; //3.5px movement amplitude
+      // Numbers scaling parameters
+      const radius = 130;
+      const maxScale = 3;
+      const minScale = 1;
+      const cellWidth = 85;
+      const cellHeight = 85;
+      const rawMousePos = mousePosRef.current;
 
+      const currentScrollLeft = spring.scrollLeft.get();
+      const currentScrollTop = spring.scrollTop.get();
+
+      const adjustedMousePos = {
+        x: rawMousePos.x + currentScrollLeft,
+        y: rawMousePos.y + currentScrollTop,
+      };
+      
+      allNumberDivs.forEach(div => {
+        const delay = parseFloat(div.dataset.delay || 0) * 1000;
+        const divPos = {
+          x: div.offsetLeft + (cellWidth / 2),
+          y: div.offsetTop + (cellHeight / 2),
+        };
+        const distX = Math.abs(adjustedMousePos.x - divPos.x);
+        const distY = Math.abs(adjustedMousePos.y - divPos.y);
+        const dist = Math.sqrt(distX * distX + distY * distY);
+
+        //let currentScale = minScale;
+        //let newScale = minScale;
+        const [rowIndex, columnIndex] = div.id.split('-').map(Number);
+        const targetData = unrefinedDataRef.current[rowIndex][columnIndex]
+
+        // If not in range of mouse, animate. Otherwise, scale numbers!
+        if (dist > radius) {
           // This formula replaces the @keyframes, does the swing movement using a sine:
-          const xPos = Math.sin((elapsedTime + delay) * (2 * Math.PI / animationDuration)) * amplitude;
-          div.style.transform = `translateX(${xPos.toFixed(2)}px)`;
-          lastFrameTime = timestamp - (deltaTime % frameTime);
-        });
-      }
-      animationFrameId.current = requestAnimationFrame(animate);
-    };
-    //Start the animation
-    animationFrameId.current = requestAnimationFrame(animate);
+          const xPos = (Math.sin((elapsedTime + delay) * angularFreq) * amplitude).toFixed(2);
+          div.style.transform = `translateX(${xPos}px)`;
+        } else {
+          let newScale = ((((minScale - maxScale) / radius) * dist) + maxScale).toFixed(2);
 
+          if (targetData.currentScale < newScale) { // IF WE ARE APPROACHING THE NUMBER
+            //div.style.color = 'red';
+            div.style.transition = `transform 0.1s ease-in-out`;
+          } else {
+            div.style.transition = `transform 0.4s ease-in-out`;
+          }
+          div.style.transform = `scale(${newScale})`;
+          targetData.currentScale = newScale; // store new scale in Data
+        } 
+      });
+    };
+    animationFrameId.current = requestAnimationFrame(animate);
+    
     // Cleanup function
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, []);
+  }, [spring]);
 
-      //onMouseOver={handleMouseOver}
-      //donMouseOut={handleMouseOut}
+  /*
+        allNumberDivs.forEach(div => {
+        const delay = parseFloat(div.dataset.delay || 0) * 1000;
+        // This formula replaces the @keyframes, does the swing movement using a sine:
+        const xPos = (Math.sin((elapsedTime + delay) * angularFreq) * amplitude).toFixed(2);
+        
+        const divPos = {
+          x: div.offsetLeft + (cellWidth / 2),
+          y: div.offsetTop + (cellHeight / 2),
+        };
+        
+        const distX = Math.abs(adjustedMousePos.x - divPos.x);
+        const distY = Math.abs(adjustedMousePos.y - divPos.y);
+        const dist = Math.sqrt(distX * distX + distY * distY);
+
+        let currentScale = minScale;
+
+        if (dist < radius) {
+          //console.log(div.id);
+          const [rowIndex, columnIndex] = div.id.split('-').map(Number);
+          const targetData = unrefinedDataRef.current[rowIndex][columnIndex]
+          if (targetData.targetScale > currentScale) {
+            console.log(targetData.targetScale)
+            amplitude = 0;
+          }
+          //console.log(rowIndex, columnIndex )
+          console.log()
+          currentScale = ((((minScale - maxScale) / radius) * dist) + maxScale).toFixed(2);
+          //STOP ANIMATION FOR IN CLOUD ELEMENTS
+        } 
+          */
 
   return (
     <div 
@@ -287,15 +350,16 @@ function Data () {
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       tabIndex={-1} 
     >
       <Macrodata
         ref={gridRef}
         className='macrodataContainer'
         columnCount={30}
-        columnWidth={75}
+        columnWidth={85}
         rowCount={unrefinedDataRef.current.length}
-        rowHeight={75}
+        rowHeight={85}
         width={gridSize.width}
         height={gridSize.height}
       >

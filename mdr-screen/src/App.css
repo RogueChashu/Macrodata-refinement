@@ -11,8 +11,7 @@ make the font micro-stripy?
 :root {
   --terminal-color: #46c2dd;
   --border-radius: 3px;
-  --delay: 0.5ms;
-  --scaleFactor: 3;
+  --scaleFactor: 1;
 }
 
 #root {
@@ -77,14 +76,6 @@ hr {
 .macrodataContainer {
   overflow: hidden;
   position: absolute;
-  /*
-  --margin-left: 0px;
-  --margin-top: 0px;
-  transform: translate(var(--margin-left), var(--margin-top));
-  transition: translate 0.1s ease-out;
-  display: grid;
-  grid-template-columns: repeat(30, 1fr);
-  grid-template-rows: repeat(30, 1fr); */
   scrollbar-width: none;
   -ms-overflow-style: none;
   transition: margin 0.35s ease-in-out;
@@ -95,20 +86,22 @@ hr {
 }
 
 .numbers {
-  padding: 28px;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
   text-align: center;
   aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
-  /*transition: transform 0.3s ease-in-out;  for scaling the hovered numbers */
-  
-  /*animation: swing 2.5s linear infinite;
-  animation-delay: calc(var(--delay) * 1s); */
+  transform: scale(var(--scaleFactor, 1));
   will-change: transform;
 } 
+
+/* other option: perspective(100px) translateZ(65px) */
+  /* scale requires only a simple multiplication operation, 
+  translateZ involves more complex calculations and additional
+  layout and painting operations. Diff could not matter, but could potentially 
+  be perceived in high-freq interactions, like we do here. So, I took no chance. */
 
 /*
 @keyframes swing {
@@ -131,17 +124,6 @@ hr {
 
 .numbers:hover {
   animation: none;
-}
-
-.hovered {
-  color:red;
-  transform: scale(var(--scaleFactor, 1))
-
-  /* other option: perspective(100px) translateZ(65px) */
-  /* scale requires only a simple multiplication operation, 
-  translateZ involves more complex calculations and additional
-  layout and painting operations. Diff could not matter, but could potentially 
-  be perceived in high-freq interactions, like we do here. So, I took no chance. */
 }
 
 .binContainer {
