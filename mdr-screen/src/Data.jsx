@@ -1,20 +1,18 @@
-// 21 columns x 10 rows of numbers visible in Lumon terminal
+// TO DO: write a function to turn some data to bad
+
 
 function _generateData () {
-  // Aiming for a 64 x 32 numbers matrix means 2048 numbers.
+  // Lumon terminal has 21 columns x 10 rows of visible numbers
+  // Aiming for a 64 columns x 32 rows numbers matrix -> 2048 numbers.
 
-  const rowNumber = 10 //64
-  const columnNumber = 10 //32
+  const rows = 5 //64
+  const columns = 5 //32
 
-  const data = Array.from({length: (rowNumber * columnNumber)}, () => Math.floor(Math.random()*10))
+  const data = Array.from({length: (rows * columns)}, () => ({
+    value: Math.floor(Math.random()*10),
+    bad: false
+  }))
 
-  /*
-  let data = []
-
-  for (let i = 0; i < 350; i++) {
-    data.push(Math.floor(Math.random()*10))
-  } */
- console.log(data)
   return data
 }
 
@@ -25,7 +23,7 @@ function Data () {
     <div className='dataContainer'>
       {unrefinedData.map((data, index) => {
         return(
-          <button className='numbers' key={index}>{data}</button>
+          <div className='numbers' key={index}>{data.value}</div>
         )
       })}
     </div>
