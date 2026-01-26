@@ -1,49 +1,74 @@
+@font-face {
+  font-family: severance;
+  /*src: url("./assets/xxx");*/
+}
+
 :root {
-  --font-color: #46c2dd;
-  --margin: 1rem 2rem;
-  --border-radius: 2px;
+  --terminal-color: #46c2dd;
+  --border-radius: 3px;
 }
 
 #root {
   width: 100%;
   margin: 0;
-  color: var(--font-color);
-  background-color: black;
+  color: var(--terminal-color);
+  background: radial-gradient(#00476d, #02162d, #011227);
   font-weight: bold;
+  text-shadow: 0px 0 11px rgba(0, 0, 0, 0.5);
+  filter: contrast(0.8) blur(0.5px);
+  font-family: "severance";
 }
 
 .header {
-  margin: var(--margin);
+  margin: 1.5rem 2.5rem;
   padding-left: 8px;
   font-size: 1.75rem;
-  border: 2px solid var(--font-color);
+  border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+  display: grid;
+  grid-template-columns: 50% 37% 13%;
+  position: relative;
+  align-content: center;
+}
+
+.refinementProgress{
+  justify-self: end;
+}
+
+.lumonLogo {
+  justify-self: end;
+  position: absolute;
+  top: 50%;
+  right: -3%;
+  transform: translateY(-50%);
+  max-height: none;
+  height: 5.6rem;
 }
 
 hr {
-  height: 2px;
-  background-color: var(--font-color);
-  border: none;
+  border-top: 3px solid var(--terminal-color);
+  margin: 3px;
 }
 
 .dataContainer {
-  height: 650px;
-  background-color: #012134;
+  padding: 4px 0;
+  height: 550px;
 }
 
 .binContainer {
   display: grid;
-  margin: 0 2rem;
+  margin: 0 2.5rem;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .binContainer > div {
   margin: 0.2rem 1.75rem;
   text-align: center;
-  border: 2px solid var(--font-color);
+  border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
 }
 
 .hexacode {
   text-align: center;
+  margin-bottom: 0.8rem;
 }
