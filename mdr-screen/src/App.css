@@ -1,7 +1,9 @@
+/*
 @font-face {
   font-family: severance;
-  /*src: url("./assets/xxx");*/
+  src: url("./assets/xxx");
 }
+*/
 
 :root {
   --terminal-color: #46c2dd;
@@ -14,7 +16,7 @@
   color: var(--terminal-color);
   background: radial-gradient(#00476d, #02162d, #011227);
   font-weight: bold;
-  text-shadow: 0px 0 11px rgba(0, 0, 0, 0.5);
+  text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
   filter: contrast(0.8) blur(0.5px);
   font-family: "severance";
 }
@@ -26,7 +28,7 @@
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
   display: grid;
-  grid-template-columns: 50% 37% 13%;
+  grid-template-columns: 50% 36% 14%;
   position: relative;
   align-content: center;
 }
@@ -42,7 +44,12 @@
   right: -3%;
   transform: translateY(-50%);
   max-height: none;
-  height: 5.6rem;
+  height: 6rem;
+}
+
+.svg-path {
+  fill: yellow;/*var(--terminal-color);*/
+  fill-opacity: 1;
 }
 
 hr {

@@ -1,13 +1,29 @@
+// 21 columns x 10 rows of numbers visible in Lumon terminal
+
+function _generateData () {
+  // Aiming for a 64 x 32 numbers matrix means 2048 numbers.
+
+  let data = []
+
+  for (let i = 0; i < 100; i++) {
+    data.push(Math.floor(Math.random()*10))
+  }
+  return data
+}
 
 
 function Data () {
-  let data = []
-
-  //data.push(      '2 3 6 8 9 4 2 2 4 5 7 8 4 3 3 6 7 8 9 9 9 3 2 3 2 4 4 5'  )
+  let unrefinedData = _generateData()
+  console.log(unrefinedData)
 
   return (
+
     <div className='dataContainer'>
-      2 3 6 8 9 4 2 2 4 5 7 8 4 3 3 6 7 8 9 9 9 3 2 3 2 4 4 5     
+      {unrefinedData.map((data, index) => {
+        return(
+          <button className='numbers' key={index}>{data}</button>
+        )
+      })}
     </div>
   )
 }
