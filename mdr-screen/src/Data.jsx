@@ -112,30 +112,40 @@ function Data () {
   }, [marginSize.left, marginSize.top])
 
   const handleMouseOver = useCallback((e) => {
+    //const mouseX = e.clientX - (window.innerWidth / 2);
+    //const mouseY = e.clientY - (window.innerHeight / 2);
     //const radius = 100;
-    const cursorX = e.clientX;
-    const cursorY = e.clientY;
-    console.log('x', cursorX, 'y', cursorY)
 
-    const mx = cursorX - (window.innerWidth / 2);
-    const my = cursorY - (window.innerHeight / 2);
+    //console.log('x', mouseX, 'y', mouseY)
+    //console.log(visibleData)
 
-    console.log(mx,my);
-    //const visibleWindow = visibleWindowRef.current;
     //const element = document.elementFromPoint(cursorX, cursorY)
-    //const mx = cursorX - (visibleWindowRect.width / 2);
-    //const my = cursorY - (visibleWindowRect.height / 2);
-    //console.log('x', cursorX, 'y', cursorY)
     //NEED TO READ THE COORDS OF NEARBY ELEMENTS" we already know the mouse ones. Should the
     //styling be applied using coords?
     //NEED TO LINK COORDS TO DIV
-    if (e.target.classList.contains('numbers')) {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    //console.log('mouse:', mouseX,mouseY)
+    const element = document.elementFromPoint(mouseX, mouseY)
+    //console.log(element)
+    //console.log('div', element.offsetLeft, element.offsetTop)
+
+    //get div coords, then calc dist bet mouse and div dx and dy
+    //calculate dist
+    // if dist < ... fire condition
+    /////////////////////////
+     
+        //from the visibledata index, how to get to the div
+        //console.log(unrefinedData[index])
+    
       //console.log(element)
       //const test = document.elementFromPoint(cursorX+140, cursorY)
       //console.log(test)
-      const hoveredDiv = e.target;
-      hoveredDiv.classList.add('hovered');
-    }
+
+     // if (e.target.classList.contains('numbers')) {
+     //   const hoveredDiv = e.target;
+     //   hoveredDiv.classList.add('hovered');
+     // }
   },[]);
 
   const handleMouseOut = useCallback((e) => {
@@ -150,7 +160,7 @@ function Data () {
     const visibleWindow = visibleWindowRef.current;
 
     if (dataContainer && visibleWindow) {
-      const visibleChildren = Array.from(dataContainer.children).map((child, index) => {
+      const visibleChildren = Array.from(dataContainer.children).map((child) => {
         const childRect = child.getBoundingClientRect();
         const windowRect = visibleWindow.getBoundingClientRect();
         // 50px tolerance zone added in the upcoming bounds check so we don't have non swinging data
@@ -160,8 +170,8 @@ function Data () {
           childRect.bottom <= windowRect.bottom + 50 &&
           childRect.left >= windowRect.left -50 &&
           childRect.right <= windowRect.right + 50
-         ) ? index : null
-      }).filter(index => index !== null)
+          ) ? child : null
+        }).filter(child => child !== null)
       setVisibleData(visibleChildren);
     }
   }
@@ -193,12 +203,13 @@ function Data () {
         }}
       >
         {unrefinedData.map((data, index) => {
-          const isCurrentVisibleElement = visibleData.some((element) => element === index)
+          const isCurrentVisibleElement = visibleData.some((element) => element.id === `${index}`)
           
           return(
             <div 
               className={`numbers ${isCurrentVisibleElement?'swingData' : ''}`}            
               key={index}
+              id={index}
               style={{
                 '--delay': data.delay
               }}
