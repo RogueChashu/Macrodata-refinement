@@ -12,16 +12,16 @@ import Footer from './Footer'
 
 function App() {
   return (
-    <>
-      <Header />
-      <hr />
-      <hr />
-      <Data />
-      <hr />
-      <hr />
-      <Bins />
-      <hr />
-      <Footer />
+    <>  
+        <Header />
+        <hr />
+        <hr />
+        <Data />
+        <hr />
+        <hr />
+        <Bins />
+        <hr />
+        <Footer />
     </>
   )
 }

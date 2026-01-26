@@ -5,7 +5,7 @@ function _generateData () {
 
   let data = []
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 350; i++) {
     data.push(Math.floor(Math.random()*10))
   }
   return data
