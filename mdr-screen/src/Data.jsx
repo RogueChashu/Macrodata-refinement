@@ -120,10 +120,10 @@ function Data () {
     //const mx = cursorX - (visibleWindowRect.width / 2);
     //const my = cursorY - (visibleWindowRect.height / 2);
     //console.log('x', cursorX, 'y', cursorY)
-
+    //NEED TO READ THE COORDS OF NEARBY ELEMENTS" we already know the mouse ones. Should the
+    //styling be applied using coords?
     if (e.target.classList.contains('numbers')) {
-      const hoveredIndex = Array.prototype.indexOf.call(e.target.parentNode.children, e.target);
-      const hoveredDiv = dataContainerRef.current.children[hoveredIndex];
+      const hoveredDiv = e.target;
       hoveredDiv.style.transform = 'perspective(100px) translateZ(65px)';
       hoveredDiv.style.transition = 'transform 0.4s ease-in-and-out';
     }
@@ -131,8 +131,7 @@ function Data () {
 
   const handleMouseOut = useCallback((e) => {
     if (e.target.classList.contains('numbers')) {
-      const hoveredIndex = Array.prototype.indexOf.call(e.target.parentNode.children, e.target);
-      const hoveredDiv = dataContainerRef.current.children[hoveredIndex];
+      const hoveredDiv = e.target;
       hoveredDiv.style.transform = '';
     }
   }, []);
