@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FixedSizeGrid as Macrodata } from 'react-window';
+import { useSpring } from 'react-spring';
 
 // TO DO: write a function to turn some data to 'bad: true'
 // Lumon terminal has 21 columns x 10 rows of visible numbers in some screenshots. 
@@ -19,7 +20,22 @@ function _generateData () {
 }
 
 function Data () {
-  const [scrollPosition, setScrollPosition] = useState({ scrollTop: 0, scrollLeft: 0 });
+  // react-spring manages the animated values, so no scrollPosition state
+  const [spring, api] = useSpring(() => ({
+    scrollTop: 0,
+    scrollLeft: 0,
+    // animation configuration:
+    config: { tension: 210, friction: 20, mass: 1 },
+    onChange: ({ value }) => {
+      if (gridRef.current) {
+        gridRef.current.scrollTo({
+          scrollTop: value.scrollTop,
+          scrollLeft: value.scrollLeft,
+        });
+      }
+    },
+  }));
+  
   const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
 
   const unrefinedDataRef = useRef(_generateData());
@@ -35,10 +51,11 @@ function Data () {
 
   const handleKeyMove = useCallback((e) => {
     const stepSize = 50;
-    const { scrollTop, scrollLeft } = scrollPosition;
-    let newScrollLeft = scrollLeft;
-    let newScrollTop = scrollTop;
-
+    const currentScrollTop = spring.scrollTop.get();
+    const currentScrollLeft = spring.scrollLeft.get();
+    let newScrollTop = currentScrollTop;
+    let newScrollLeft = currentScrollLeft;
+   
     if (!gridRef.current) return;
 
     e.preventDefault();
@@ -46,75 +63,70 @@ function Data () {
     switch (e.key){
       case 'a':
       case 'ArrowLeft':
-        newScrollLeft = Math.max(0, scrollLeft - stepSize);
-        break
+        newScrollLeft = Math.max(0, currentScrollLeft - stepSize);
+        break;
       case 'd':
       case 'ArrowRight':
         newScrollLeft = Math.min(
-          scrollLeft + stepSize,
+          currentScrollLeft + stepSize,
           unrefinedDataRef.current[0].length * 75 - gridSize.width
         );
-        break
+        break;
       case 's':
       case 'ArrowDown':
         newScrollTop = Math.min(
-          scrollTop + stepSize,
+          currentScrollTop + stepSize,
           unrefinedDataRef.current.length * 75 - gridSize.height
         );
-        break
+        break;
       case 'w':
       case 'ArrowUp':
-        newScrollTop = Math.max(0, scrollTop - stepSize);
-        break
+        newScrollTop = Math.max(0, currentScrollTop - stepSize);
+        break;
       default:
-        break
+        return;
     }
-    gridRef.current.scrollTo({
+    api.start({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
     })
-    setScrollPosition({ scrollTop: newScrollTop, scrollLeft: newScrollLeft });
-  }, [scrollPosition, gridSize]);
+  }, [api, spring, gridSize]);
 
-  /*const handleMouseMove = useCallback((e) => {
-    const stepSize = 20
-    const dataRect = dataContainerRef.current?.getBoundingClientRect();
-    const windowRect = visibleWindowRef.current?.getBoundingClientRect()
+  const handleMouseMove = useCallback((e) => {
+    const stepSize = 50;
+    const currentScrollTop = spring.scrollTop.get();
+    const currentScrollLeft = spring.scrollLeft.get();
+    let newScrollTop = currentScrollTop;
+    let newScrollLeft = currentScrollLeft;
     
-    if (!dataRect || !windowRect) return;
-
-    const modify = {}
+    if (!gridRef.current) return;
 
     // 30px detection zone chosen because smaller felt narrow
-    if (e.clientX < windowRect.left + 30) { 
-      if (dataRect.left + stepSize <= 0) { // go to the left
-        modify.left = marginSize.left + stepSize;
-      } else {
-        modify.left = 0;
-      }
-    } else if (e.clientX > windowRect.right - 30) {
-      if (dataRect.right - stepSize >= windowRect.right) { // go the the right
-        modify.left = marginSize.left - stepSize;
-      } else {
-        modify.left = marginSize.left - (dataRect.right - windowRect.right);
-      }
+    //left
+    if (e.clientX < currentScrollLeft + 30) {
+      newScrollLeft = Math.max(0, currentScrollLeft - stepSize);
+    //right
+    } else if (e.clientX > gridSize.width - 30) {
+      newScrollLeft = Math.min(
+        currentScrollLeft + stepSize,
+        unrefinedDataRef.current[0].length*75 - gridSize.width
+      );
     }
-
-    if (e.clientY < windowRect.top + 30) {
-      if (dataRect.top + stepSize <= windowRect.top) { // go up
-        modify.top = marginSize.top + stepSize;
-      } else {
-        modify.top = 0;
-      }
-    } else if (e.clientY > windowRect.bottom - 30) {
-      if (dataRect.bottom - stepSize >= windowRect.bottom) { // go down
-        modify.top= marginSize.top - stepSize;
-      } else {
-        modify.top = marginSize.top - (dataRect.bottom - windowRect.bottom);
-      }
+    //up    
+    if (e.clientY < currentScrollTop + 30) {
+      newScrollTop = Math.max(0, currentScrollTop - stepSize);
+    //down
+    } else if (e.clientY > gridSize.height - 30) {
+      newScrollTop = Math.min(
+        newScrollTop + stepSize,
+        unrefinedDataRef.current.length * 75 - gridSize.height
+      );
     }
-    setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [marginSize]) */
+    api.start({
+      scrollTop: newScrollTop,
+      scrollLeft: newScrollLeft,
+    })
+  }, [api, spring, gridSize]);
 
   /*
   const handleMouseOver = useCallback((e) => {
@@ -236,8 +248,8 @@ function Data () {
     
     const animate = (timestamp) => {
       const elapsedTime = timestamp - startTimeRef.current;
-      const allNumberDivs = container.querySelectorAll('.numbers');
       const deltaTime = timestamp - lastFrameTime;
+      const allNumberDivs = container.querySelectorAll('.numbers');
 
       // Continue the loop, but controlling the frame rate for GPU usage reasons
       if (deltaTime >= frameTime) {
@@ -266,15 +278,15 @@ function Data () {
     };
   }, []);
 
-      //onMouseMove={handleMouseMove}
       //onMouseOver={handleMouseOver}
       //donMouseOut={handleMouseOut}
 
   return (
     <div 
       id='visibleWindow'
-      ref={visibleWindowRef} 
+      ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
+      onMouseMove={handleMouseMove}
       tabIndex={-1} 
     >
       <Macrodata
