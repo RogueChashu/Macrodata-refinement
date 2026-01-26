@@ -1,8 +1,6 @@
 /*TO DO: 
 Find a similar font
-find out out to make the font "swollen"
 make the font micro-stripy?
-change the cursor color to terminal color
 */
 /*
 @font-face {
@@ -28,6 +26,7 @@ change the cursor color to terminal color
   font-size: 16px;
   text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
   filter: contrast(0.8) blur(0.5px);
+  cursor: url("./assets/refinementCursor.svg"), auto;
 }
 
 .header {
@@ -75,7 +74,7 @@ hr {
   display: grid;
   grid-template-columns: repeat(30, 1fr);
   grid-template-rows: repeat(30, 1fr);
-  /* gap necessary to be able to mouse over consecutive numbers and have them scale*/
+  /* gap necessary to be able to mouse over consecutive numbers and have them scale */
   gap: 18px;
   top: 0;
   left: 0;
@@ -83,7 +82,6 @@ hr {
 }
 
 .numbers {
-  cursor: default;
   padding: 14px;
   font-size: 1.1rem;
   font-weight: bold;
@@ -92,7 +90,7 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.45s ease-in-out;
 }
 
 .swingData {
@@ -125,6 +123,10 @@ hr {
 .hovered {
   transform: scale(2.7);
   /* other option: perspective(100px) translateZ(65px) */
+  /* scale requires only a simple multiplication operation, 
+  translateZ involves more complex calculations. translateZ requires additional
+  layout and painting operations. Diff could not matter, but could potentially 
+  be perceived in high-freq interactions, like we do here. So, I took no chance. */
 }
 
 .binContainer {
