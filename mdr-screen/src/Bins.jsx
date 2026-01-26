@@ -1,18 +1,19 @@
 
-function Bins () {
+function Bins ({ binRefs }) {
 
+  if (!binRefs) return;
+  
   return (
     <div className='binContainer'>
-      <div className='bin'>01</div>
-      <div className='bin'>02</div>
-      <div className='bin'>03</div>
-      <div className='bin'>04</div>
-      <div className='bin'>05</div>
-      <div className='binProgress'>0%</div>
-      <div className='binProgress'>0%</div>
-      <div className='binProgress'>0%</div>
-      <div className='binProgress'>0%</div>
-      <div className='binProgress'>0%</div>
+
+      {binRefs.current.map((bin, index) => (
+        <div key={index} className={'bin' + '0' + (index + 1)}>{'0' + (index + 1)}</div>
+      ))}
+
+      {binRefs.current.map((bin, index) => (
+        <div key={index} className={'binProgress' + '0' + (index + 1)}>0%</div>
+      ))}
+
     </div>
   )
 }
