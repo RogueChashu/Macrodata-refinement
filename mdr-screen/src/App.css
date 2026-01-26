@@ -11,6 +11,8 @@ make the font micro-stripy?
 :root {
   --terminal-color: #46c2dd;
   --border-radius: 3px;
+  --delay: 0.5ms;
+  --scaleFactor: 3;
 }
 
 #root {
@@ -90,7 +92,7 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.45s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 }
 
 .swingData {
@@ -121,7 +123,9 @@ hr {
 }
 
 .hovered {
-  transform: scale(2.7);
+  color:red;
+  transform: scale(var(--scaleFactor, 1))
+
   /* other option: perspective(100px) translateZ(65px) */
   /* scale requires only a simple multiplication operation, 
   translateZ involves more complex calculations. translateZ requires additional
@@ -143,7 +147,6 @@ hr {
 
 .binContainer .bin {
   text-align: center;
-
 }
 
 .binContainer .binProgress {

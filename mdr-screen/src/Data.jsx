@@ -8,23 +8,32 @@ function _generateData () {
   const rows = 30;
   const columns = 30;
 
+  /*
   const data = Array.from({length: (rows * columns)}, () => ({
     value: Math.floor(Math.random()*10),
     delay: Math.random() * 2.5,
     bad: false,
-  }));
+  }));*/
 
+  const data = Array.from({ length: rows }, () =>  
+    Array.from({ length: columns }, () => ({
+      value: Math.floor(Math.random() * 10),
+      delay: Math.random() * 2.5,
+      bad: false,
+    }))
+  );
   return data
 }
 
 function Data () {
   const [unrefinedData, setUnrefinedData]  = useState([]);
   const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
-  const [visibleData, setVisibleData] = useState([]);
+  //const [visibleData, setVisibleData] = useState([]);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
   const focusDummyRef = useRef(null);
+  const visibleDataRef = useRef([]);
 
   useEffect(() => {
     // Data is generated inside a useEffect w/ empty dep so that each render doesn't generate a new data set
@@ -112,48 +121,46 @@ function Data () {
   }, [marginSize.left, marginSize.top])
 
   const handleMouseOver = useCallback((e) => {
-    //const mouseX = e.clientX - (window.innerWidth / 2);
-    //const mouseY = e.clientY - (window.innerHeight / 2);
-    //const radius = 100;
-
-    //console.log('x', mouseX, 'y', mouseY)
-    //console.log(visibleData)
-
-    //const element = document.elementFromPoint(cursorX, cursorY)
-    //NEED TO READ THE COORDS OF NEARBY ELEMENTS" we already know the mouse ones. Should the
-    //styling be applied using coords?
-    //NEED TO LINK COORDS TO DIV
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-    //console.log('mouse:', mouseX,mouseY)
-    const element = document.elementFromPoint(mouseX, mouseY)
-    //console.log(element)
-    //console.log('div', element.offsetLeft, element.offsetTop)
-
-    //get div coords, then calc dist bet mouse and div dx and dy
-    //calculate dist
-    // if dist < ... fire condition
-    /////////////////////////
-     
-        //from the visibledata index, how to get to the div
-        //console.log(unrefinedData[index])
+    const radius = 120;
+    const maxScale = 3;
+    const minScale = 1;
+    const centerElement = document.elementFromPoint(e.clientX, e.clientY);
     
-      //console.log(element)
-      //const test = document.elementFromPoint(cursorX+140, cursorY)
-      //console.log(test)
+    // calculate the center of the moused over div.
+    const centerRect = centerElement.getBoundingClientRect();
+    const centerX = centerRect.left + centerRect.width / 2;
+    const centerY = centerRect.top + centerRect.height / 2;
 
-     // if (e.target.classList.contains('numbers')) {
-     //   const hoveredDiv = e.target;
-     //   hoveredDiv.classList.add('hovered');
-     // }
-  },[]);
+    visibleDataRef.current.forEach((datum) => {
+      //calculate the center of each div
+      const rect = datum.getBoundingClientRect();
+      const divX = rect.left + rect.width / 2;
+      const divY = rect.top + rect.height / 2;
+
+      //calculate the dist between this div and the moused div
+      const distX = Math.abs(divX - centerX);
+      const distY = Math.abs(divY - centerY);
+      const dist = Math.sqrt(distX * distX + distY * distY);
+
+      if (dist < radius) {
+        let scale = 1;
+        // SLOW function
+        scale = (((minScale - maxScale) / radius) * dist) + maxScale;
+          
+        datum.classList.add('hovered');
+        datum.style.setProperty('--scaleFactor', scale);
+      }
+    })
+   
+  },[visibleDataRef]);
 
   const handleMouseOut = useCallback((e) => {
-    if (e.target.classList.contains('numbers')) {
-      const hoveredDiv = e.target;
-      hoveredDiv.classList.remove('hovered');
-    }
-  }, []);
+    visibleDataRef.current.forEach((div) => {
+      if (div.classList.contains('hovered')) {
+        div.classList.remove('hovered')
+      }
+    })
+  }, [visibleDataRef]);
 
   const isVisibleData = () => {
     const dataContainer = dataContainerRef.current;
@@ -172,7 +179,7 @@ function Data () {
           childRect.right <= windowRect.right + 50
           ) ? child : null
         }).filter(child => child !== null)
-      setVisibleData(visibleChildren);
+      visibleDataRef.current = visibleChildren;
     }
   }
 
@@ -202,22 +209,26 @@ function Data () {
           marginLeft: `${marginSize.left}px`,
         }}
       >
-        {unrefinedData.map((data, index) => {
-          const isCurrentVisibleElement = visibleData.some((element) => element.id === `${index}`)
+        {unrefinedData.map((row, rowIndex) => (
+          row.map((data, dataIndex) => {
+            const isCurrentVisibleElem = visibleDataRef.current.some(
+              (element) => element.id === `${rowIndex}-${dataIndex}`
+            );
           
-          return(
-            <div 
-              className={`numbers ${isCurrentVisibleElement?'swingData' : ''}`}            
-              key={index}
-              id={index}
-              style={{
-                '--delay': data.delay
-              }}
-            >
-              {data.value}
-            </div>
-          )
-        })}
+            return (
+              <div 
+                className={`numbers ${isCurrentVisibleElem?'swingData' : ''}`}            
+                key={`${rowIndex}-${dataIndex}`}
+                id={`${rowIndex}-${dataIndex}`}
+                style={{
+                  '--delay': data.delay
+                }}
+              >
+                {data.value}
+              </div>
+            )
+          }))
+        )}
       </div>
     <div
       ref={focusDummyRef}
