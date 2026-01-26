@@ -94,6 +94,7 @@ hr {
 
 .swingData {
   animation: swing 2.5s linear infinite;
+  animation-delay: calc(var(--delay) * 1s)
 }
 
 @keyframes swing {

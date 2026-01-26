@@ -188,10 +188,14 @@ function Data () {
       >
         {unrefinedData.map((data, index) => {
           const isCurrentVisibleElement = visibleData.some((element) => element === index)
+          const delay = Math.random() * 2.5;
           return(
             <div 
               className={`numbers ${isCurrentVisibleElement ? 'swingData' : ''}`}
               key={index}
+              style={{
+                '--delay': delay
+              }}
             >
               {data.value}
             </div>
