@@ -27,7 +27,7 @@ make the font micro-stripy?
   font-weight: bolder;
   font-size: 16px;
   text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
-  filter: contrast(0.8) blur(0.5px);
+  filter: contrast(0.8) blur(0.4px);
   cursor: url("./assets/refinementCursor.svg"), auto;
 }
 
@@ -64,41 +64,49 @@ hr {
 }
 
 #visibleWindow {
+  position: relative;
   flex-grow: 1;
   overflow: hidden;
   height: 100%;
   width: 100%;
   left: 0;
   top: 0;
+  outline: none;
 }
 
-#dataContainer {
+.macrodataContainer {
+  overflow: hidden;
+  position: absolute;
+  /*
+  --margin-left: 0px;
+  --margin-top: 0px;
+  transform: translate(var(--margin-left), var(--margin-top));
+  transition: translate 0.1s ease-out;
   display: grid;
   grid-template-columns: repeat(30, 1fr);
-  grid-template-rows: repeat(30, 1fr);
-  /* gap necessary to be able to mouse over consecutive numbers and have them scale */
-  gap: 18px;
-  top: 0;
-  left: 0;
+  grid-template-rows: repeat(30, 1fr); */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: margin 0.35s ease-in-out;
 }
 
+#macrodataContainer::-webkit-scrollbar {
+  display: none;
+}
+
 .numbers {
-  padding: 14px;
-  font-size: 1.1rem;
+  padding: 28px;
+  font-size: 1.2rem;
   font-weight: bold;
   text-align: center;
   aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 0.3s ease-in-out;
-}
-
-.swingData {
-  animation: swing 2.5s linear infinite;
-  animation-delay: calc(var(--delay) * 1s)
-}
+  /*transition: transform 0.3s ease-in-out;  for scaling the hovered numbers */
+  /*animation: swing 2.5s linear infinite;
+  animation-delay: calc(var(--delay) * 1s) */
+} 
 
 @keyframes swing {
   0% {
@@ -118,7 +126,7 @@ hr {
   }
 }
 
-.swingData:hover {
+.numbers:hover {
   animation: none;
 }
 
@@ -128,7 +136,7 @@ hr {
 
   /* other option: perspective(100px) translateZ(65px) */
   /* scale requires only a simple multiplication operation, 
-  translateZ involves more complex calculations. translateZ requires additional
+  translateZ involves more complex calculations and additional
   layout and painting operations. Diff could not matter, but could potentially 
   be perceived in high-freq interactions, like we do here. So, I took no chance. */
 }
