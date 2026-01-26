@@ -25,6 +25,8 @@ function Data () {
   const unrefinedDataRef = useRef(_generateData());
   const visibleWindowRef = useRef(null);
   const gridRef = useRef(null);
+  const animationFrameId = useRef(null);
+  const startTimeRef = useRef(performance.now());
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
@@ -37,9 +39,7 @@ function Data () {
     let newScrollLeft = scrollLeft;
     let newScrollTop = scrollTop;
 
-    if (!gridRef.current) {
-      return;
-    }
+    if (!gridRef.current) return;
 
     e.preventDefault();
 
@@ -76,8 +76,7 @@ function Data () {
     setScrollPosition({ scrollTop: newScrollTop, scrollLeft: newScrollLeft });
   }, [scrollPosition, gridSize]);
 
-/*
-  const handleMouseMove = useCallback((e) => {
+  /*const handleMouseMove = useCallback((e) => {
     const stepSize = 20
     const dataRect = dataContainerRef.current?.getBoundingClientRect();
     const windowRect = visibleWindowRef.current?.getBoundingClientRect()
@@ -117,13 +116,6 @@ function Data () {
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
   }, [marginSize]) */
 
-  /*
-   useEffect(() => {
-    if (dataContainerRef.current) {
-      dataContainerRef.current.style.setProperty('--margin-left', `${marginSize.left}px`);
-      dataContainerRef.current.style.setProperty('--margin-top', `${marginSize.top}px`);
-    }
-  }, [marginSize])*/
   /*
   const handleMouseOver = useCallback((e) => {
     //const radius = 120;
@@ -201,20 +193,21 @@ function Data () {
         className='numbers'
         key={`${rowIndex}-${columnIndex}`}
         id={`${rowIndex}-${columnIndex}`}
+        data-delay={data.delay}
         style={{ 
-          ...style, 
-          '--delay': data.delay 
+          ...style,
         }}
       >{data.value}</div>
     );
   }
 
+  // To ensure the Macrodata grid follows the visibleWindow's dimensions when user resizes the window:
   useEffect(() => {
     // This function ensures user can resize window and grid's dimensions will adapt
     const updateGridSize = () => {
       if (visibleWindowRef.current) {
         const { width, height } = visibleWindowRef.current.getBoundingClientRect();
-      setGridSize({ width, height });
+        setGridSize({ width, height });
       }
     }
 
@@ -232,15 +225,56 @@ function Data () {
     }
   }, []);
 
+  useEffect(() => {
+    const container = visibleWindowRef.current;
+    if (!container) return;
+
+    const targetFPS = 9;
+    const frameTime = 1000 / targetFPS;
+
+    let lastFrameTime = 0;
+    
+    const animate = (timestamp) => {
+      const elapsedTime = timestamp - startTimeRef.current;
+      const allNumberDivs = container.querySelectorAll('.numbers');
+      const deltaTime = timestamp - lastFrameTime;
+
+      // Continue the loop, but controlling the frame rate for GPU usage reasons
+      if (deltaTime >= frameTime) {
+
+        allNumberDivs.forEach(div => {
+          const delay = parseFloat(div.dataset.delay || 0) * 1000;
+          const animationDuration = 3500; //3.5s duration
+          const amplitude = 3.5; //3.5px movement amplitude
+
+          // This formula replaces the @keyframes, does the swing movement using a sine:
+          const xPos = Math.sin((elapsedTime + delay) * (2 * Math.PI / animationDuration)) * amplitude;
+          div.style.transform = `translateX(${xPos.toFixed(2)}px)`;
+          lastFrameTime = timestamp - (deltaTime % frameTime);
+        });
+      }
+      animationFrameId.current = requestAnimationFrame(animate);
+    };
+    //Start the animation
+    animationFrameId.current = requestAnimationFrame(animate);
+
+    // Cleanup function
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, []);
+
+      //onMouseMove={handleMouseMove}
+      //onMouseOver={handleMouseOver}
+      //donMouseOut={handleMouseOut}
 
   return (
     <div 
       id='visibleWindow'
       ref={visibleWindowRef} 
       onKeyDown={handleKeyMove}
-      //onMouseMove={handleMouseMove}
-      //onMouseOver={handleMouseOver}
-      //donMouseOut={handleMouseOut}
       tabIndex={-1} 
     >
       <Macrodata
