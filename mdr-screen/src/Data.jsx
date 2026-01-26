@@ -8,13 +8,6 @@ function _generateData () {
   const rows = 30;
   const columns = 30;
 
-  /*
-  const data = Array.from({length: (rows * columns)}, () => ({
-    value: Math.floor(Math.random()*10),
-    delay: Math.random() * 2.5,
-    bad: false,
-  }));*/
-
   const data = Array.from({ length: rows }, () =>  
     Array.from({ length: columns }, () => ({
       value: Math.floor(Math.random() * 10),
@@ -26,9 +19,8 @@ function _generateData () {
 }
 
 function Data () {
-  const [unrefinedData, setUnrefinedData]  = useState([]);
+  const [unrefinedData, setUnrefinedData]  = useState(_generateData);
   const [marginSize, setMarginSize] = useState({ top: 0, left: 0 });
-  //const [visibleData, setVisibleData] = useState([]);
 
   const visibleWindowRef = useRef(null);
   const dataContainerRef = useRef(null);
@@ -36,18 +28,18 @@ function Data () {
   const visibleDataRef = useRef([]);
 
   useEffect(() => {
-    // Data is generated inside a useEffect w/ empty dep so that each render doesn't generate a new data set
-    setUnrefinedData(_generateData())
     //capture the initial focus when the component mounts, allowing the user to navigate the visibleWindow 
     // without needing to click on it first: 
-    focusDummyRef && focusDummyRef.current.focus()
+    focusDummyRef.current?.focus()
   }, [])
 
   const handleKeyMove = useCallback((e) => {
     const stepSize = 20
-    const dataRect = dataContainerRef.current.getBoundingClientRect()
-    const windowRect = visibleWindowRef.current.getBoundingClientRect()
+    const dataRect = dataContainerRef.current?.getBoundingClientRect()
+    const windowRect = visibleWindowRef.current?.getBoundingClientRect()
     const modify = {}
+
+    if (!dataRect || !windowRect) return;
 
     switch (e.key){
       case 'a':
@@ -78,16 +70,17 @@ function Data () {
         break
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [marginSize.left, marginSize.top])
+  }, [marginSize])
 
   const handleMouseMove = useCallback((e) => {
     const cursorX = e.clientX;
     const cursorY = e.clientY;
-
     const stepSize = 20
-    const dataRect = dataContainerRef.current.getBoundingClientRect()
-    const windowRect = visibleWindowRef.current.getBoundingClientRect()
+    const dataRect = dataContainerRef.current?.getBoundingClientRect()
+    const windowRect = visibleWindowRef.current?.getBoundingClientRect()
     const modify = {}
+
+    if (!dataRect || !windowRect) return;
 
     // 30px detection zone chosen because smaller felt narrow
     if (cursorX < windowRect.left + 30) { 
@@ -118,14 +111,39 @@ function Data () {
       }
     }
     setMarginSize(prevMargin => ({...prevMargin, ...modify }))
-  }, [marginSize.left, marginSize.top])
+  }, [marginSize])
 
-  const handleMouseOver = useCallback((e) => {
-    const radius = 120;
-    const maxScale = 3;
-    const minScale = 1;
-    const centerElement = document.elementFromPoint(e.clientX, e.clientY);
+  /*
+  const handleMouseOver = (e) => {// useCallback((e) => {
+    //const radius = 120;
+    //const maxScale = 3;
+    //const minScale = 1;
+    const mouseElement = e.target.closest('.numbers');
+    //console.log(mouseElement);
+    //const hoveredIndex = [];
+
+    if (mouseElement.id) {
+      const [rowIndex, columnIndex] = mouseElement.id.split('-');
+      //console.log('row:', rowIndex, 'col:', columnIndex)
+
+      for (let i = rowIndex - 1; i = rowIndex + 1; i++) {
+        console.log('i',i)
+        //for (let j = columnIndex - 1; j = columnIndex +1; j++ ) {
+          //console.log('j',j)
+          //hoveredIndex.push(i,'-',j)
+        //}
+        //console.log(hoveredIndex)
+      }
+    }
+  }//,[]); */
+
+/*
+
+      //const rect = mouseElement.getBoundingClientRect()
+      //console.log(rect)
+    } */
     
+    /*
     // calculate the center of the moused over div.
     const centerRect = centerElement.getBoundingClientRect();
     const centerX = centerRect.left + centerRect.width / 2;
@@ -149,43 +167,46 @@ function Data () {
           
         datum.classList.add('hovered');
         datum.style.setProperty('--scaleFactor', scale);
-      }
-    })
-   
-  },[visibleDataRef]);
+      } 
+    }) 
 
   const handleMouseOut = useCallback((e) => {
     visibleDataRef.current.forEach((div) => {
       if (div.classList.contains('hovered')) {
         div.classList.remove('hovered')
+        div.style.setProperty('--scaleFactor', '1');
       }
-    })
-  }, [visibleDataRef]);
+    });
+  }, [visibleDataRef.current]); */1
 
-  const isVisibleData = () => {
+  const isVisibleData = useCallback(() => {
     const dataContainer = dataContainerRef.current;
     const visibleWindow = visibleWindowRef.current;
 
     if (dataContainer && visibleWindow) {
-      const visibleChildren = Array.from(dataContainer.children).map((child) => {
-        const childRect = child.getBoundingClientRect();
-        const windowRect = visibleWindow.getBoundingClientRect();
-        // 50px tolerance zone added in the upcoming bounds check so we don't have non swinging data
-        // on the edges of the visible window.
-        return (
-          childRect.top >= windowRect.top - 50 &&
-          childRect.bottom <= windowRect.bottom + 50 &&
-          childRect.left >= windowRect.left -50 &&
-          childRect.right <= windowRect.right + 50
-          ) ? child : null
-        }).filter(child => child !== null)
+      const visibleChildren = Array.from(dataContainer.children)
+        .map((child) => {
+          const childRect = child.getBoundingClientRect();
+          const windowRect = visibleWindow.getBoundingClientRect();
+          // 50px tolerance zone added in the upcoming bounds check so we don't have non swinging data
+          // on the edges of the visible window.
+          return (
+            childRect.top >= windowRect.top - 50 &&
+            childRect.bottom <= windowRect.bottom + 50 &&
+            childRect.left >= windowRect.left -50 &&
+            childRect.right <= windowRect.right + 50
+          ) 
+            ? child 
+            : null
+        })
+        .filter(child => child !== null)
       visibleDataRef.current = visibleChildren;
     }
-  }
+  }, []);
 
   useEffect(() => {
     isVisibleData()
-  }, [unrefinedData, marginSize.left, marginSize.top])
+  }, [unrefinedData, marginSize.left, marginSize.top, isVisibleData])
 
   return (
     <div 
@@ -193,8 +214,8 @@ function Data () {
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
-      onMouseOver={handleMouseOver}
-      onMouseOut={handleMouseOut}
+      //onMouseOver={handleMouseOver}
+      //donMouseOut={handleMouseOut}
       tabIndex={-1} 
       style={{
         position: 'relative',
@@ -205,10 +226,9 @@ function Data () {
         ref={dataContainerRef} 
         style={{
           position: 'absolute',
-          marginTop: `${marginSize.top}px`,
-          marginLeft: `${marginSize.left}px`,
+          transform: `translate(${marginSize.left}px, ${marginSize.top}px)`,
         }}
-      >
+      >d
         {unrefinedData.map((row, rowIndex) => (
           row.map((data, dataIndex) => {
             const isCurrentVisibleElem = visibleDataRef.current.some(
