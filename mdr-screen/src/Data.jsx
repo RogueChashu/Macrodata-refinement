@@ -241,7 +241,7 @@ function Data ({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
     })
-  }, [api, spring, gridSize]);
+  }, [api, spring, gridSize, unrefinedDataRef]);
 
   const handleMouseMove = useCallback((e) => {
     if (!visibleWindowRef.current || !gridRef.current) return;
