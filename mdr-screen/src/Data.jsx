@@ -291,14 +291,14 @@ function Data ({
             break;
           case 'right':
             newScrollLeft = Math.min(currentScrollLeft + stepSize,
-            unrefinedDataRef.current[0].length * 85 - gridSize.width);
+            unrefinedDataRef.current[0].length * 80 - gridSize.width);
             break;
           case 'up':
             newScrollTop = Math.max(0, currentScrollTop - stepSize);
             break;
           case 'down':
             newScrollTop = Math.min(newScrollTop + stepSize,
-            unrefinedDataRef.current.length * 85 - gridSize.height);  
+            unrefinedDataRef.current.length * 80 - gridSize.height);  
             break;
           default:
             break;
