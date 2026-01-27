@@ -309,9 +309,41 @@ function Data ({
           scrollLeft: newScrollLeft,
           config: MOUSE_SCROLL_CONFIG,
         });
-      }, 16)
+      }, 16) // 16ms frequency, so ~60 frames per second
     }
   }, [api, spring, gridSize]);
+
+  const handleScroll = useCallback((e) => {
+    if (!visibleWindowRef.current || !gridRef.current) return;
+
+    const currentScrollTop = spring.scrollTop.get();
+    const currentScrollLeft = spring.scrollLeft.get();
+    let newScrollTop = currentScrollTop;
+    let newScrollLeft = currentScrollLeft;
+    
+
+    // Since laptop trackpads are more commonly 2D browsing, 
+    // the hardware sends a native horizontal signal to the browser,
+    // changing the deltaX. Typically, mice do 1D browsing and we
+    // need to tell the browser how to change the deltaX.
+    if (e.shiftKey === true) {
+      // Pressing 'Shift' doesn't change the deltaX when wheel mousing, 
+      // but pressed or not
+      // using the wheel changes the deltaY. This is the way to know
+      // the amount/ direction to apply to horizontal scrolling
+      newScrollLeft = newScrollLeft + e.deltaY;
+    } else {
+      // Placing the regular scroll here so it doesn't also fire when we
+      // horizontal scroll
+      newScrollTop = newScrollTop + e.deltaY;
+    }
+
+    api.start({
+      scrollTop: newScrollTop,
+      scrollLeft: newScrollLeft,
+    })
+
+  }, [api, spring])
 
   const handleMouseLeave = useCallback(() => {
     mousePosRef.current = { x: -999, y:-999 };
