@@ -592,41 +592,10 @@ function Data ({
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
       }
     };
-  }, [spring]);
-
-  /*
-        allNumberDivs.forEach(div => {
-        const delay = parseFloat(div.dataset.delay || 0) * 1000;
-        // This formula replaces the @keyframes, does the swing movement using a sine:
-        const xPos = (Math.sin((elapsedTime + delay) * angularFreq) * amplitude).toFixed(2);
-        
-        const divPos = {
-          x: div.offsetLeft + (cellWidth / 2),
-          y: div.offsetTop + (cellHeight / 2),
-        };
-        
-        const distX = Math.abs(adjustedMousePos.x - divPos.x);
-        const distY = Math.abs(adjustedMousePos.y - divPos.y);
-        const dist = Math.sqrt(distX * distX + distY * distY);
-
-        let currentScale = minScale;
-
-        if (dist < radius) {
-          //console.log(div.id);
-          const [rowIndex, columnIndex] = div.id.split('-').map(Number);
-          const targetData = unrefinedDataRef.current[rowIndex][columnIndex]
-          if (targetData.targetScale > currentScale) {
-            console.log(targetData.targetScale)
-            amplitude = 0;
-          }
-          //console.log(rowIndex, columnIndex )
-          console.log()
-          currentScale = ((((minScale - maxScale) / radius) * dist) + maxScale).toFixed(2);
-          //STOP ANIMATION FOR IN CLOUD ELEMENTS
-        } 
-          */
+  }, [openedBinIndexRef,prepareFlyingItems,spring]);
 
   return (
     <div 
