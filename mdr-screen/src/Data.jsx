@@ -143,12 +143,54 @@ function Data ({
   const startTimeRef = useRef(performance.now());
   const mousePosRef = useRef({ x: -999, y: -999 });
   const edgeScrollIntervalRef = useRef(null);
-  const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.) 
+  const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.)
+  const visibleItemsRef = useRef(new Map());
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
     visibleWindowRef.current?.focus()
+
+    let totalBadData = 0;
+    unrefinedDataRef.current.map((row) => {
+      row.map((data) => {
+        (data.bad) ? totalBadData++ : undefined;
+      })
+    })
+    const refinementProgress = refinementProgressRef.current;
+    refinementProgress.totalBadData = totalBadData;
   }, [])
+
+  const replaceRefinedData = (rowIndex, columnIndex) => {
+    const newData = _generateNumber();
+    // "new" state allows for a smooth slow appearance in the animate function
+    newData.state = 'new';
+    newData.currentScale = 0;
+    unrefinedDataRef.current[rowIndex][columnIndex] = newData;
+
+    const id = `${rowIndex}-${columnIndex}`;
+    const visibleItem = visibleItemsRef.current.get(id);
+
+    if (visibleItem) {
+      visibleItem.data = newData;
+      visibleItem.div.textContent = '';
+    }
+  };
+
+  const refineBadData = (targetBinIndex) => {
+    const refinementProgress = refinementProgressRef.current;
+    let refinedData = 0;
+
+    unrefinedDataRef.current.map((row) => {
+      row.map((item) => {
+        if (item.flagged && !item.isRefining) {
+          item.isRefining = true;
+          openBin(targetBinIndex); // start opening the box asap
+          item.bad && refinedData++;
+        }
+      });
+    });
+    refinementProgress.refined += refinedData;
+  };
 
   const handleKeyMove = useCallback((e) => {
     const stepSize = 50;
@@ -157,7 +199,7 @@ function Data ({
     let newScrollTop = currentScrollTop;
     let newScrollLeft = currentScrollLeft;
    
-    if (!gridRef.current) return;
+    if (!gridRef.current || !unrefinedDataRef.current) return;
 
     e.preventDefault();
 
@@ -170,19 +212,27 @@ function Data ({
       case 'ArrowRight':
         newScrollLeft = Math.min(
           currentScrollLeft + stepSize,
-          unrefinedDataRef.current[0].length * 85 - gridSize.width
+          unrefinedDataRef.current[0].length * 80 - gridSize.width
         );
         break;
       case 's':
       case 'ArrowDown':
         newScrollTop = Math.min(
           currentScrollTop + stepSize,
-          unrefinedDataRef.current.length * 85 - gridSize.height
+          unrefinedDataRef.current.length * 80 - gridSize.height
         );
         break;
       case 'w':
       case 'ArrowUp':
         newScrollTop = Math.max(0, currentScrollTop - stepSize);
+        break;
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+        const targetBinIndex = parseInt(e.key) -1;
+        refineBadData(targetBinIndex);
         break;
       default:
         return;
