@@ -252,7 +252,7 @@ function Data ({
       y: e.clientY - rect.top,
     };
 
-    const scrollDetectionZone = 40;
+    const scrollDetectionZone = 45;
     let currentEdge = null;
     
     // determine which edge the mouse is in, if any 
