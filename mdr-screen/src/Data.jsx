@@ -107,16 +107,21 @@ const KEYBOARD_SCROLL_CONFIG = {
 
 const MOUSE_SCROLL_CONFIG = {
   mass: 1,
-  tension: 400, //faster, more responsive feel. Higher the value, the snappier it is
-  friction: 40 // the higher the value, the faster it brakes.
+  tension: 800, //faster, more responsive feel. Higher the value, the snappier it is
+  friction: 25 // the higher the value, the faster it brakes.
 };
 
-function Data () {
+function Data ({ 
+  refinementProgressRef, 
+  openBin,
+  openedBinIndexRef, 
+  prepareFlyingItems,
+}) {
   // react-spring manages the animated values, so no scrollPosition state
   const [spring, api] = useSpring(() => ({
     scrollTop: 0,
     scrollLeft: 0,
-    config: KEYBOARD_SCOLL_CONFIG,
+    config: KEYBOARD_SCROLL_CONFIG,
     onChange: ({ value }) => {
       if (gridRef.current) {
         gridRef.current.scrollTo({
