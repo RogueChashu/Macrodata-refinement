@@ -409,80 +409,182 @@ function Data ({
     }
   }, []);
 
-  useEffect(() => {
-    const container = visibleWindowRef.current;
-    if (!container) return;
+  function Row({ columnIndex, rowIndex, style }) {
+    const data = unrefinedDataRef.current[rowIndex][columnIndex];
+    const divRef = useRef(null);
 
+    useEffect(() => {
+      const div = divRef.current;
+      if (!div) return;
+
+      div.style.transform= `scale(${data.currentScale})`
+
+      const cellWidth = 80;
+      const cellHeight = 80;
+      const id =`${rowIndex}-${columnIndex}`;
+
+      // Create the item object with cached data to avoid future DOM reads
+      const animationItem = {
+        id,
+        div,
+        data,
+        rowIndex,
+        columnIndex,
+        // Cache position ONCE on mount to prevent layout thrashing
+        pos: {
+          x: div.offsetLeft + (cellWidth / 2),
+          y: div.offsetTop + (cellHeight / 2),
+        },
+        // Cache dataset value ONCE on mount
+        delay: parseFloat(div.dataset.delay || 0) * 1000
+      };
+
+      visibleItemsRef.current.set(id, animationItem);
+
+      return () => {
+        visibleItemsRef.current.delete(id);
+      };
+    }, [columnIndex,data,rowIndex]);
+
+    return (
+      <div
+        ref={divRef}
+        className='numbers'
+        key={`${rowIndex}-${columnIndex}`}
+        id={`${rowIndex}-${columnIndex}`}
+        data-delay={data.delay}
+        style={{
+          ...style,
+          //color: data.bad ? 'red' : undefined, ////////////////////////
+        }}
+      >
+        {/* don't render the new number's value until the animation is ready for it, i.e. when the .new
+          is removed in the animation logic. */}
+        {data.new ? '' : data.value}</div>
+    );
+  }
+
+  useEffect(() => {
+    /*
+    Possible states:
+    - SWAYING: the default animation when the mouse isn't nearby
+    - PROXIMITY_SCALING: scaling when the mouse enters the item's radius
+    - SCARY_HOVER: special version of proximity scaling for "bad numbers" that adds a vertical shake
+    - FLAGGED: when a number is selected by the user, holding its maximum scale
+    - REFINING: when a "bad number" is being animated towards the bin
+    - NEW_ITEM_SCALING: when a new number is first rendered and scales into view.
+    */
+    // Animation constants
     const targetFPS = 60;
     const frameTime = 1000 / targetFPS;
+    const swayDuration = 5000; // 5s duration
+    const swayAmplitude = 5; // 5px movement amplitude
+    const swayAngularFreq = 2 * Math.PI / swayDuration;
+
+    // Numbers scaling parameters
+    const radius = 130;
+    const maxScale = 2.5;
+    const minScale = 1;
+    const scaleInDuration = 850;
+    const newNumberDelay = 1200;
+
+    // Scary numbers animation parameters
+    const scaryAnimationDuration = 300; // faster cycling than swaying numbers
+    const scaryAngularFreq = 2 * Math.PI / scaryAnimationDuration;
+    const scaryAmp = 1.4;
+
     let lastFrameTime = 0;
-    
+
     const animate = (timestamp) => {
+      if (!animationFrameId.current) return;
       animationFrameId.current = requestAnimationFrame(animate);
 
       const deltaTime = timestamp - lastFrameTime;
-
       if (deltaTime < frameTime) return;
-
       lastFrameTime = timestamp - (deltaTime % frameTime);
 
+      // Values that change each frame
       const elapsedTime = timestamp - startTimeRef.current;
-      const allNumberDivs = container.querySelectorAll('.numbers');
-
-      // Numbers swaying animation parameters
-      const animationDuration = 4000; //4.5s duration
-      const amplitude = 4; //4px movement amplitude
-      const angularFreq = 2 * Math.PI / animationDuration;
-
-      // Numbers scaling parameters
-      const radius = 130;
-      const maxScale = 3;
-      const minScale = 1;
-      const cellWidth = 85;
-      const cellHeight = 85;
-      const rawMousePos = mousePosRef.current;
-
       const currentScrollLeft = spring.scrollLeft.get();
       const currentScrollTop = spring.scrollTop.get();
 
       const adjustedMousePos = {
-        x: rawMousePos.x + currentScrollLeft,
-        y: rawMousePos.y + currentScrollTop,
+        x: mousePosRef.current.x + currentScrollLeft,
+        y: mousePosRef.current.y + currentScrollTop,
       };
-      
-      allNumberDivs.forEach(div => {
-        const delay = parseFloat(div.dataset.delay || 0) * 1000;
-        const divPos = {
-          x: div.offsetLeft + (cellWidth / 2),
-          y: div.offsetTop + (cellHeight / 2),
-        };
-        const distX = Math.abs(adjustedMousePos.x - divPos.x);
-        const distY = Math.abs(adjustedMousePos.y - divPos.y);
-        const dist = Math.sqrt(distX * distX + distY * distY);
 
-        //let currentScale = minScale;
-        //let newScale = minScale;
-        const [rowIndex, columnIndex] = div.id.split('-').map(Number);
-        const targetData = unrefinedDataRef.current[rowIndex][columnIndex]
+      for (const numberInstance of visibleItemsRef.current.values()) {
+        // Step 1: determine the state
+        const { state, distance } = determineItemState(numberInstance, adjustedMousePos, radius);
 
-        // If not in range of mouse, animate. Otherwise, scale numbers!
-        if (dist > radius) {
-          // This formula replaces the @keyframes, does the swing movement using a sine:
-          const xPos = (Math.sin((elapsedTime + delay) * angularFreq) * amplitude).toFixed(2);
-          div.style.transform = `translateX(${xPos}px)`;
-        } else {
-          let newScale = ((((minScale - maxScale) / radius) * dist) + maxScale).toFixed(2);
+        // Step 2: Get the animation parameters from correct state function
+        let animationParams;
 
-          if (targetData.currentScale < newScale) { // IF WE ARE APPROACHING THE NUMBER
-            //div.style.color = 'red';
-            div.style.transition = `transform 0.1s ease-in-out`;
-          } else {
-            div.style.transition = `transform 0.4s ease-in-out`;
-          }
-          div.style.transform = `scale(${newScale})`;
-          targetData.currentScale = newScale; // store new scale in Data
-        } 
-      });
+        switch (state) {
+          case 'SWAYING':
+            animationParams = animationStates.SWAYING(
+              numberInstance,
+              elapsedTime,
+              swayAngularFreq,
+              swayAmplitude,
+              minScale
+            );
+            break;
+          case 'PROXIMITY_SCALING':
+            animationParams = animationStates.PROXIMITY_SCALING(
+              numberInstance,
+              distance,
+              minScale,
+              maxScale,
+              radius
+            );
+            break;
+          case 'SCARY_HOVER':
+            animationParams = animationStates.SCARY_HOVER(
+              numberInstance,
+              elapsedTime,
+              scaryAngularFreq,
+              scaryAmp,
+              distance,
+              minScale,
+              maxScale,
+              radius
+            );
+            break;
+          case 'FLAGGED':
+            animationParams = animationStates.FLAGGED(
+              numberInstance,
+              maxScale
+            );
+            break;
+          case 'REFINING':
+            animationParams = animationStates.REFINING(
+              prepareFlyingItems,
+              numberInstance, 
+              openedBinIndexRef,
+              replaceRefinedData
+           );
+            break;
+          case 'NEW_ITEM_SCALING':
+           animationParams = animationStates.NEW_ITEM_SCALING(
+            numberInstance,
+            timestamp,
+            newNumberDelay,
+            scaleInDuration, 
+            minScale
+           )
+            break;
+          default:
+            break;
+        }
+
+        // Apply the animation (if any)
+        if (animationParams) {
+          const { translateX, translateY, scale } = animationParams;
+          numberInstance.div.style.transform = `translateX(${translateX.toFixed(2)}px)
+            translateY(${translateY.toFixed(2)}px) scale(${scale.toFixed(2)})`;
+        }
+      }; 
     };
     animationFrameId.current = requestAnimationFrame(animate);
     
