@@ -13,11 +13,10 @@ function App() {
   const [binsRect, setBinsRect] = useState([]);
   
   // refinementProgress is stored in a Ref so it doesn't cause the
-  // Data component to re-render when it tells to update the progress, if it were
+  // Data component to re-render when it tells to update the progress if it were
   // in state. And, its content gets to be updated and rendered
-  // when flyingItems do trigger a render, so we also avoid unnecessary
-  // renders. We don't need to cause a render outside of
-  // flying items anyway.
+  // when flyingItems trigger a render, so we also avoid unnecessary
+  // renders. No need to cause a render outside of flying items anyway.
 
   const refinementProgressRef = useRef({ refined: 0, totalBadData: 0 });
   const openedBinIndexRef = useRef(null);
