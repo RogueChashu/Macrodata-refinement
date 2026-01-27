@@ -392,6 +392,7 @@ function Data ({
       if (visibleWindowRef.current) {
         const { width, height } = visibleWindowRef.current.getBoundingClientRect();
         setGridSize({ width, height });
+        //console.log('RESIZER RENDER!!!')
       }
     }
 
