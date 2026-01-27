@@ -131,6 +131,8 @@ function Data ({
       }
     },
   }));
+
+  //console.log('I AM RENDERING!!');
   
   const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
 
