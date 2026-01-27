@@ -634,23 +634,28 @@ function Data ({
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
+      onWheel={handleScroll} 
       onMouseLeave={handleMouseLeave}
-      tabIndex={-1} 
+      onClick={handleGridClick}  
+      tabIndex={-1} // make it focusable, but removed from the natural tab order
     >
+    {unrefinedDataRef && gridRef ? (
       <Macrodata
         ref={gridRef}
         className='macrodataContainer'
-        columnCount={30}
-        columnWidth={85}
+        columnCount={unrefinedDataRef.current[0].length}
+        columnWidth={80}
         rowCount={unrefinedDataRef.current.length}
-        rowHeight={85}
+        rowHeight={80}
         width={gridSize.width}
         height={gridSize.height}
       >
         {Row}
       </Macrodata>
+    ) : (<div>Loading...</div>
+    )}
     </div>
   ) 
 }
 
-export default Data
+export default memo(Data)
