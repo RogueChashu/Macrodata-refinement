@@ -1,27 +1,105 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { FixedSizeGrid as Macrodata } from 'react-window';
 import { useSpring } from 'react-spring';
+import determineItemState, { animationStates } from './determineItemState.js';
 
-// TO DO: write a function to turn some data to 'bad: true'
-// Lumon terminal has 21 columns x 10 rows of visible numbers in some screenshots. 
-// So make sure to have minimum a few more rows and columns than 21. But you can zoom in and out...
-
-function _generateData () {
-  const rows = 30;
-  const columns = 30;
-
-  return Array.from({ length: rows }, (_, rowIndex) =>  
-    Array.from({ length: columns }, (_, dataIndex) => ({
-      value: Math.floor(Math.random() * 10),
-      delay: Math.random() * 2.5,
-      bad: false,
-      //targetScale: 3,
-      currentScale: 1,
-    }))
-  );
+function _generateNumber () {
+  return {
+    value: Math.floor(Math.random() * 10),
+    delay: Math.random() * 2.5,
+    bad: false,
+    currentScale: 1,
+  }
 }
 
-const KEYBOARD_SCOLL_CONFIG = {
+function _generateData () {
+  const rows = 40;
+  const columns = 40;
+
+  const data = Array.from({ length: rows }, (_, rowIndex) =>  
+    Array.from({ length: columns }, (_, dataIndex) => (
+      _generateNumber()
+    ))
+  );
+  const readyData = _makeScaryNumbers(data, rows, columns);
+  return readyData;
+}
+
+function _generateLotteryBag(rows, columns) {
+  let lotteryBag = [];
+
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < columns; j++) {
+      lotteryBag.push([i,j]);
+    }
+  }
+  return lotteryBag;
+}
+
+function _makeScaryNumbers (data, rows, columns) {
+  const badRate = 0.005; // 0.5% bad data rate for cores. 40 x 40 = 8 clusters for 1600 numbers
+  const badCoresAmount = Math.round(rows * columns * badRate); // Number of bad cores
+  const badDataRadius = 6;
+  const badClusterRadius = 2.4;
+
+  // Generate a lottery bag: an array of indexes.
+  let dataLotteryBag = _generateLotteryBag(rows, columns);
+
+  // Pick the above determined amount of bad data cores from lottery bag,
+  // ensuring they are properly apart so no cluster will touch or overlap
+  for (let i = 0; i < badCoresAmount; i++) {
+    if (dataLotteryBag.length === 0) {
+      console.warn("No spots available for bad cores");
+      break;
+    }
+
+    const randomAvailableIndex = Math.floor(Math.random() * dataLotteryBag.length);
+    const [pickedBadRowIndex, pickedBadColIndex] = dataLotteryBag[randomAvailableIndex];
+
+    // Create a void area around the picked core so we don't have touching cores/clusters
+    for (let i = -badDataRadius; i <= badDataRadius; i++) {
+      for (let j = -badDataRadius; j <= badDataRadius; j++) {
+        let clusterSpaceRowIndex = pickedBadRowIndex + i;
+        let clusterSpaceColIndex = pickedBadColIndex + j;
+
+        if (clusterSpaceRowIndex >= 0 && clusterSpaceRowIndex < rows &&
+          clusterSpaceColIndex >= 0 && clusterSpaceColIndex < columns) {
+
+          const distX = Math.abs(clusterSpaceRowIndex - pickedBadRowIndex);
+          const distY = Math.abs(clusterSpaceColIndex - pickedBadColIndex);
+          const dist = Math.sqrt(distX * distX + distY * distY);
+
+          // y = 1 - (x/3)⁴, aka a decay function
+          // 1 == y value when x=0. So, max probability
+          // 3 == x value when y=0. So, total decay aka distance to have 0 probability
+          // 4 is for a flatter curve. 3 would make it decay faster.
+          const probability = 1 - (dist / 3)**4;
+
+          // Fill part of the void with bad data
+          if (dist <= badClusterRadius) {
+            //const badDataGeneration = probability * Math.random();
+            const badDataGeneration = probability + Math.random()
+            if (badDataGeneration > 1.5 || probability > 0.75) {  //> 0.33 || probability >= 0.75) {
+              data[clusterSpaceRowIndex][clusterSpaceColIndex].bad = true;
+            }  
+          }
+        }
+      }  
+    }  
+    const minX = pickedBadColIndex - badDataRadius;
+    const maxX = pickedBadColIndex + badDataRadius;
+    const minY = pickedBadRowIndex - badDataRadius;
+    const maxY = pickedBadRowIndex + badDataRadius; 
+
+    dataLotteryBag = dataLotteryBag.filter(([i,j]) => {
+      const isInsideKeepOutZone =  (i >= minY && i<= maxY && j >= minX && j<= maxX);
+      return !isInsideKeepOutZone;
+    });
+  }
+  return data
+}
+
+const KEYBOARD_SCROLL_CONFIG = {
   mass: 1,
   tension: 200, // slower, gentle feel
   friction: 26
