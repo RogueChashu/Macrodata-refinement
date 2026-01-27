@@ -355,20 +355,35 @@ function Data ({
     }
   }, []);
 
-  function Row({ columnIndex, rowIndex, style }) {
-    const data = unrefinedDataRef.current[rowIndex][columnIndex];
-    return (
-      <div
-        className='numbers'
-        key={`${rowIndex}-${columnIndex}`}
-        id={`${rowIndex}-${columnIndex}`}
-        data-delay={data.delay}
-        style={{
-          ...style,
-        }}
-      >{data.value}</div>
-    );
-  }
+  const handleGridClick = useCallback((e) => {
+    if (!visibleWindowRef.current) return;
+
+    const cellWidth = 80;
+    const cellHeight = 80;
+    const rawMousePos = mousePosRef.current;
+    const currentScrollLeft = spring.scrollLeft.get();
+    const currentScrollTop = spring.scrollTop.get();
+
+    const adjustedMousePos = {
+      x: rawMousePos.x + currentScrollLeft,
+      y: rawMousePos.y + currentScrollTop,
+    };
+
+    const columnIndex = Math.floor(adjustedMousePos.x / cellWidth);
+    const rowIndex = Math.floor(adjustedMousePos.y / cellHeight);
+
+    if (unrefinedDataRef.current[rowIndex] && unrefinedDataRef.current[rowIndex][columnIndex]) {
+      const targetData = unrefinedDataRef.current[rowIndex][columnIndex]
+
+      if (!targetData.flagged) {
+        // flagging the clicked number tells the animation:
+        // set scaling to max scale and don't change it, and no swaying.
+        targetData.flagged = true; 
+      } else {
+        delete targetData.flagged;
+      }
+    }        
+  }, [spring])
 
   // To ensure the Macrodata grid follows the visibleWindow's dimensions when user resizes the window:
   useEffect(() => {
