@@ -1,21 +1,14 @@
-import  lumonLogo  from './assets/lumon1-test.svg';
-import { useEffect } from 'react';
+import  lumonLogo  from './assets/lumon1-test.png';
 
-//TO DO: make the background opaque behind the Lumon globe logo
-
-function Header ({ refinementProgress }) {
+function Header ({ refinementProgressRef }) {
   const filename = 'Siena'
-
-  //console.log('in header:', refinementProgress.totalBadData)
- // useEffect(() )
+  const refinementProgress = refinementProgressRef.current;
 
   return (
     <div className='header'>
       <div className='filename'>{filename}</div>
       <div className='refinementProgress'>
-        {refinementProgress.refined === 0 ? 
-          `0`: 
-          Math.round(refinementProgress.refined / refinementProgress.totalBadData * 100)}% complete
+        {Math.round(refinementProgress.refined / refinementProgress.totalBadData * 100) || 0}% complete
       </div>
       <img className='lumonLogo' src={lumonLogo} />
     </div>
