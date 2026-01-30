@@ -8,7 +8,7 @@ make the font micro-stripy?
   src: url("./assets/xxx");
 }*/
 
-@media (min-width: 700px) and (max-width: 1500px) {
+@media (min-width: 700px) { 
   :root {
     --terminal-color: #46c2dd;
     --border-radius: 1px;
@@ -30,6 +30,7 @@ make the font micro-stripy?
     cursor: url("./assets/refinementCursor.svg"), auto;
     overflow-x: hidden;
     overflow-y: hidden;
+    max-width: 1600px;
   }
 
   .header {
