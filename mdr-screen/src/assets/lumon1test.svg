@@ -1,0 +1,44 @@
+<svg
+   version="1.1"
+   id="my-svg"
+   width="2200"
+   height="1333.3333"
+   viewBox="0 0 2200 1333.3333"
+   sodipodi:docname="lumon.ai"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath18">
+      <path
+         d="M 0,1000 H 1650 V 0 H 0 Z"
+         id="path16"
+         style="stroke: var(--stroke-color); stroke-width: 1; fill: none;"
+         />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     inkscape:deskcolor="#d1d1d1" />
+  <g
+     id="g8"
+     inkscape:groupmode="layer"
+     inkscape:label="lumon"
+     transform="matrix(1.3333333,0,0,-1.3333333,0,1333.3333)">
+    <path
+       d="M 0,0 H 1650 V 1000 H 0 Z"
+       style="fill: #000000; fill-opacity: 0.5; fill-rule: nonzero; stroke: var(--stroke-color); stroke-width: 1;"
+       id="path10" />
+    <g
+       id="g12">
+      <g>
+         <g
+           id="g20"
+           transform="translate(1397.3733,295.6834)">
+          <path
+             d="m 0,0 h -146.113 c 16.938,18.572 31.567,38.263 43.718,58.988 6.216,10.601 11.692,21.365 16.489,32.264 h -18.62 C -120.012,58.372 -142.075,27.689 -169.565,0 h -185.156 c 12.508,28.316 22.297,58.986 29.144,91.252 h -17.322 C -350.147,58.365 -360.492,27.695 -373.359,0 h -370.792 c -12.87,27.696 -23.222,58.362 -30.471,91.252 h -17.319 C -785.094,58.986 -775.304,28.316 -762.796,0 h -199.147 c -27.496,27.695 -49.602,58.365 -65.09,91.252 h -18.632 c 4.797,-10.899 10.272,-21.663 16.488,-32.264 12.152,-20.725 26.781,-40.416 43.719,-58.988 h -159.289 c -82.565,57.57 -131.191,128.102 -131.191,204.316 0,82.087 56.383,157.595 150.85,217.404 h 152.138 c -22.35,-22.321 -41.178,-46.41 -56.227,-72.074 -2.032,-3.467 -3.964,-6.956 -5.845,-10.456 h 19.398 c 17.195,29.805 39.894,57.541 67.216,82.53 h 191.641 c -12.411,-25.565 -22.454,-53.3 -30.048,-82.53 h 17.57 c 8.046,29.796 18.64,57.548 31.423,82.53 h 358.127 c 12.783,-24.
