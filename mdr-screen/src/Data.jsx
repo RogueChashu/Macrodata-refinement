@@ -111,6 +111,12 @@ const MOUSE_SCROLL_CONFIG = {
   friction: 25 // the higher the value, the faster it brakes.
 };
 
+const MOUSE_WHEEL_CONFIG = {
+  mass: 1,
+  tension: 160,
+  friction: 28
+}
+
 function Data ({ 
   refinementProgressRef, 
   openBin,
@@ -341,6 +347,7 @@ function Data ({
     api.start({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
+      config: MOUSE_WHEEL_CONFIG,
     })
 
   }, [api, spring])
