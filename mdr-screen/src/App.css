@@ -1,12 +1,16 @@
 /*TO DO: 
-Find a similar font
 make the font micro-stripy?
 */
-/*
+
 @font-face {
-  font-family: severance;
-  src: url("./assets/xxx");
-}*/
+  font-family: severance-numbers;
+  src: url("./assets/PlusJakartaSans-VariableFont_wght.ttf");
+}
+
+@font-face {
+  font-family: severance-headers;
+  src: url("./assets/04abf85192f34526c9125cf1072ea81e.ttf");
+}
 
 @media (min-width: 700px) { 
   :root {
@@ -17,7 +21,7 @@ make the font micro-stripy?
 
   #root {
     width: 100%;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: "severance-headers"; 
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -94,6 +98,7 @@ make the font micro-stripy?
 
   .numbers {
     font-size: 1.45rem;
+    font-family: "severance-numbers";
     font-weight: bold;
     text-align: center;
     aspect-ratio: 1/1;
@@ -109,6 +114,7 @@ make the font micro-stripy?
     margin: 0.3rem 3.25rem;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 0.3rem 2rem;
+    font-family: "severance-numbers";
   }
 
   .container01,
@@ -249,6 +255,7 @@ make the font micro-stripy?
 
   .flying-item-container {
     font-size: 1.45rem;
+    font-family: "severance-numbers";
   }
 
   footer {

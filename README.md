@@ -1,4 +1,4 @@
-# Severance's Macrodata refinement terminal simulation
+# A Severance's Macrodata refinement terminal simulation
 
 *"Each category of numbers presents in such an order as to elicit an emotional response in the refiner"* --Mark Scout, Severance
 
@@ -45,3 +45,7 @@ Ever wished to become a macrodata refiner and look for scary numbers? I have. Th
 3. `npm install` 
 4. `npm run dev`
 5. Open http://localhost:5173/
+
+### Credits
+
+Forma DJR Display font: [David Jonathan Ross]("http://www.onlinewebfonts.com")
