@@ -101,22 +101,23 @@ function _makeScaryNumbers (data, rows, columns) {
 
 const KEYBOARD_SCROLL_CONFIG = {
   mass: 1,
-  tension: 200, // slower, gentle feel
-  friction: 26
+  tension: 210,
+  friction: 20
 };
 
-const MOUSE_SCROLL_CONFIG = {
-  mass: 1,
-  tension: 800, //faster, more responsive feel. Higher the value, the snappier it is
-  friction: 25 // the higher the value, the faster it brakes.
+const MOUSE_EDGE_SCROLL_CONFIG = {
+  mass: 1,      
+  tension: 210,   
+  friction: 30    // the higher the value, the faster it brakes, preventing bouncing.
 };
 
-const MOUSE_WHEEL_CONFIG = { // fluid, but stops precisely
+const MOUSE_WHEEL_CONFIG = {
   mass: 1,
-  tension: 160,
-  friction: 28,
+  tension: 200, // High enough to keep up with rapid scrolling
+  friction: 50, // high enough to prevent "wobble" at the end of scroll
   clamp: true
 }
+
 
 function Data ({ 
   refinementProgressRef, 
@@ -128,7 +129,7 @@ function Data ({
   const [spring, api] = useSpring(() => ({
     scrollTop: 0,
     scrollLeft: 0,
-    config: KEYBOARD_SCROLL_CONFIG,
+
     onChange: ({ value }) => {
       if (gridRef.current) {
         gridRef.current.scrollTo({
@@ -247,6 +248,7 @@ function Data ({
     api.start({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
+      config: KEYBOARD_SCROLL_CONFIG,
     })
   }, [api, spring, gridSize, unrefinedDataRef]);
 
@@ -314,13 +316,13 @@ function Data ({
         api.start({
           scrollTop: newScrollTop,
           scrollLeft: newScrollLeft,
-          config: MOUSE_SCROLL_CONFIG,
+          config: MOUSE_EDGE_SCROLL_CONFIG,
         });
       }, 16) // 16ms frequency, so ~60 frames per second
     }
   }, [api, spring, gridSize]);
 
-  const handleScroll = useCallback((e) => {
+  const handleWheelScroll = useCallback((e) => {
     if (!visibleWindowRef.current || !gridRef.current) return;
 
     const currentScrollTop = spring.scrollTop.get();
@@ -612,7 +614,7 @@ function Data ({
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
-      onWheel={handleScroll} 
+      onWheel={handleWheelScroll} 
       onMouseLeave={handleMouseLeave}
       onClick={handleGridClick}  
       tabIndex={-1} // make it focusable, but removed from the natural tab order
