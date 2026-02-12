@@ -111,10 +111,11 @@ const MOUSE_SCROLL_CONFIG = {
   friction: 25 // the higher the value, the faster it brakes.
 };
 
-const MOUSE_WHEEL_CONFIG = {
+const MOUSE_WHEEL_CONFIG = { // fluid, but stops precisely
   mass: 1,
   tension: 160,
-  friction: 28
+  friction: 28,
+  clamp: true
 }
 
 function Data ({ 

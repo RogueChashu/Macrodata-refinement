@@ -5,6 +5,7 @@ import Data from './Data';
 import Bins from './Bins';
 import Footer from './Footer';
 import FlyingItem from './FlyingItem.jsx';
+import ErrorOverlay from './ErrorOverlay.jsx';
 
 const binCount = 5;
 
@@ -70,6 +71,7 @@ function App() {
 
   return (
     <>  
+      <ErrorOverlay />
       <Header refinementProgressRef={refinementProgressRef} />
       <hr />
       <hr />
