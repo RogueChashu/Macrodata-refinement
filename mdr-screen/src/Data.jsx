@@ -113,8 +113,8 @@ const MOUSE_EDGE_SCROLL_CONFIG = {
 
 const MOUSE_WHEEL_CONFIG = {
   mass: 1,
-  tension: 200, // High enough to keep up with rapid scrolling
-  friction: 50, // high enough to prevent "wobble" at the end of scroll
+  tension: 210, // High enough to keep up with rapid scrolling
+  friction: 90, // high enough to prevent "wobble" at the end of scroll
   clamp: true
 }
 
@@ -140,8 +140,6 @@ function Data ({
     },
   }));
 
-  //console.log('I AM RENDERING!!');
-  
   const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
 
   const unrefinedDataRef = useRef(_generateData());
@@ -153,6 +151,7 @@ function Data ({
   const edgeScrollIntervalRef = useRef(null);
   const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.)
   const visibleItemsRef = useRef(new Map());
+  const mouseScrollTargetRef = useRef({ top: 0, left: 0 });
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
@@ -323,37 +322,51 @@ function Data ({
   }, [api, spring, gridSize]);
 
   const handleWheelScroll = useCallback((e) => {
+
+    e.preventDefault();
+
     if (!visibleWindowRef.current || !gridRef.current) return;
 
-    const currentScrollTop = spring.scrollTop.get();
-    const currentScrollLeft = spring.scrollLeft.get();
-    let newScrollTop = currentScrollTop;
-    let newScrollLeft = currentScrollLeft;
+    // because wheel scrolling is an intensive event, managing the
+    // target and provide that to spring allows to prevent the jittering,
+    // hence why for mouse wheel scrolling the approach was slightly
+    // different and the target got its own ref.
+    let targetTop = mouseScrollTargetRef.current.top;
+    let targetLeft = mouseScrollTargetRef.current.left;
     
-
     // Since laptop trackpads are more commonly 2D browsing, 
     // the hardware sends a native horizontal signal to the browser,
     // changing the deltaX. Typically, mice do 1D browsing and we
     // need to tell the browser how to change the deltaX.
     if (e.shiftKey === true) {
       // Pressing 'Shift' doesn't change the deltaX when wheel mousing, 
-      // but pressed or not
-      // using the wheel changes the deltaY. This is the way to know
-      // the amount/ direction to apply to horizontal scrolling
-      newScrollLeft = newScrollLeft + e.deltaY;
+      // but presseing Shift while using the wheel changes the deltaY. This is 
+      // the way to know the amount/ direction to apply to horizontal scrolling
+      targetLeft += e.deltaY;    
     } else {
       // Placing the regular scroll here so it doesn't also fire when we
       // horizontal scroll
-      newScrollTop = newScrollTop + e.deltaY;
+      targetTop += e.deltaY;
+      targetLeft += e.deltaX; // To handle trackpads with native deltaX
     }
 
+    mouseScrollTargetRef.current = { top: targetTop, left: targetLeft };
+
     api.start({
-      scrollTop: newScrollTop,
-      scrollLeft: newScrollLeft,
+      scrollTop: targetTop,
+      scrollLeft: targetLeft,
       config: MOUSE_WHEEL_CONFIG,
     })
 
-  }, [api, spring])
+  }, [api])
+
+  useEffect(() => {
+    const el = gridRef.current?._outerRef;
+    if (el) {
+      el.addEventListener('wheel', handleWheelScroll, { passive: false });
+      return () => el.removeEventListener('wheel', handleWheelScroll);
+    }
+  }, [handleWheelScroll])
 
   const handleMouseLeave = useCallback(() => {
     mousePosRef.current = { x: -999, y:-999 };
@@ -614,7 +627,7 @@ function Data ({
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
-      onWheel={handleWheelScroll} 
+      //onWheel={handleWheelScroll} 
       onMouseLeave={handleMouseLeave}
       onClick={handleGridClick}  
       tabIndex={-1} // make it focusable, but removed from the natural tab order
