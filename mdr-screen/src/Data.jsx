@@ -333,21 +333,42 @@ function Data ({
     // different and the target got its own ref.
     let targetTop = mouseScrollTargetRef.current.top;
     let targetLeft = mouseScrollTargetRef.current.left;
-    
-    // Since laptop trackpads are more commonly 2D browsing, 
+
+    // Since laptop trackpads are more commonly doing 2D browsing, 
     // the hardware sends a native horizontal signal to the browser,
     // changing the deltaX. Typically, mice do 1D browsing and we
     // need to tell the browser how to change the deltaX.
     if (e.shiftKey === true) {
       // Pressing 'Shift' doesn't change the deltaX when wheel mousing, 
-      // but presseing Shift while using the wheel changes the deltaY. This is 
-      // the way to know the amount/ direction to apply to horizontal scrolling
-      targetLeft += e.deltaY;    
+      // but deltaY does. This is the way to know the amount/ direction 
+      // to apply to horizontal scrolling.
+     
+      if (Math.sign(e.deltaY) > 0) {        // when mouse scrolling right
+        targetLeft = Math.min(
+          targetLeft + e.deltaY, 
+          unrefinedDataRef.current[0].length * 80 - gridSize.width
+        );
+      } else if (Math.sign(e.deltaY) < 0) { // when mouse scrolling left
+        targetLeft = Math.max(0, targetLeft + e.deltaY);
+      }
     } else {
-      // Placing the regular scroll here so it doesn't also fire when we
-      // horizontal scroll
-      targetTop += e.deltaY;
-      targetLeft += e.deltaX; // To handle trackpads with native deltaX
+      // Placing the regular up/down mouse scroll here so it doesn't also 
+      // fire when we horizontal mouse scroll
+      if (Math.sign(e.deltaY) > 0) {        // when mouse scrolling down
+        targetTop = Math.min(
+          targetTop + e.deltaY,
+          unrefinedDataRef.current.length * 80 - gridSize.height
+        );
+      } else if (Math.sign(e.deltaY) < 0) {   // when mouse scrolling up
+        targetTop = Math.max(0, targetTop + e.deltaY);
+      } else if (Math.sign(e.deltaX) > 0) {   // when scrolling right w/ trackpad
+        targetLeft = Math.min(
+          targetLeft + e.deltaX,
+          unrefinedDataRef.current.length * 80 - gridSize.height
+        );
+      } else if (Math.sign(e.deltaX) < 0) { // when scrolling left w/ trackpad
+        targetLeft = Math.max(0, targetLeft + e.deltaX);
+      }
     }
 
     mouseScrollTargetRef.current = { top: targetTop, left: targetLeft };
@@ -358,8 +379,11 @@ function Data ({
       config: MOUSE_WHEEL_CONFIG,
     })
 
-  }, [api])
+  }, [api, gridSize])
 
+  // React onWheel is passive and can pool mouse events, resulting in a jerky 
+  // scrolling. An eventListener for the mouse wheel scrolling was used instead
+  // so smooth mouse wheel scrolling can take place. 
   useEffect(() => {
     const el = gridRef.current?._outerRef;
     if (el) {
@@ -627,7 +651,6 @@ function Data ({
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
-      //onWheel={handleWheelScroll} 
       onMouseLeave={handleMouseLeave}
       onClick={handleGridClick}  
       tabIndex={-1} // make it focusable, but removed from the natural tab order
