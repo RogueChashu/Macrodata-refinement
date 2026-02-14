@@ -27,8 +27,6 @@ const animationStates = {
     const { data, div  } = numberInstance;
     const scale = calculateProximityScale(dist, minScale, maxScale, radius);
 
-    //const city1 = user?.address?.city ?? 'Unknown City'; CHECK THIS OUT AGAIN
-
     if (data.lastDist === undefined || dist < data.lastDist) {
       div.style.transition = `transform 0.05s ease-in-out`;
     } else {  // moving away
