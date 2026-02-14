@@ -14,8 +14,6 @@ const animationStates = {
     const { div, data, delay } = numberInstance;
     const translateX = (Math.sin((elapsedTime + delay) * swayAngularFreq) * swayAmplitude);
 
-    //console.log(data.delay)
-
     if (data.currentScale > minScale) {
       div.style.transition = `transform 0.35s ease-out`;
     }
