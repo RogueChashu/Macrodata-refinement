@@ -337,7 +337,8 @@ function Data ({
     // Since laptop trackpads are more commonly doing 2D browsing, 
     // the hardware sends a native horizontal signal to the browser,
     // changing the deltaX. Typically, mice do 1D browsing and we
-    // need to tell the browser how to change the deltaX.
+    // need to tell the browser how to do the horizontal scrolling without
+    // deltaX.
     if (e.shiftKey === true) {
       // Pressing 'Shift' doesn't change the deltaX when wheel mousing, 
       // but deltaY does. This is the way to know the amount/ direction 
