@@ -43,8 +43,29 @@ function App() {
     if (openedBinIndexRef.current === null) return;
       
     if (binsRect.length > 0) {
-      const startRect = div.getBoundingClientRect();
-      const endRect = binsRect[openedBinIndexRef.current];
+      // Since we have a CTR display edge, we need to deduct the 
+      // parent's position to get the appropriate flying item position.
+      const parent = document.getElementById('root');
+        
+      const childRect = div.getBoundingClientRect();
+      const parentRect = parent.getBoundingClientRect(); 
+
+      const startRect = {
+        left: childRect.left - parentRect.left - parent.clientLeft,
+        top: childRect.top - parentRect.top - parent.clientTop,
+        width: childRect.width,
+        height: childRect.height,
+      };
+
+      const binRect = binsRect[openedBinIndexRef.current];
+
+      const endRect = {
+        left: binRect.left - parent.clientLeft - parent.clientLeft,
+        top: binRect.top - parentRect.top - parent.clientTop,
+        width: binRect.width,
+        height: binRect.height,
+      }
+
 
       if (!endRect) {
         console.error('No rect for', openedBinIndexRef.current);

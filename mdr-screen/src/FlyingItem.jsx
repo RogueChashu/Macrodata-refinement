@@ -3,6 +3,7 @@ import { useSpring, animated } from 'react-spring';
 function FlyingItem({ id, value, scale, startRect, endRect, onComplete }) {
   const props = useSpring({
     from: {
+      position: 'fixed', // element now positioned relative to the viewport.
       left: `${startRect.left}px`,
       top: `${startRect.top}px`,
       width: `${startRect.width}px`,
@@ -17,7 +18,7 @@ function FlyingItem({ id, value, scale, startRect, endRect, onComplete }) {
       transform: 'scale(1.75)',
     },
     delay: 1100 ,
-    config: { duration: 1500, },//{ tension: 35, friction: 26 },
+    config: { duration: 1500, },
     onRest: () => onComplete(id), // cleanup function when done
   });
 
