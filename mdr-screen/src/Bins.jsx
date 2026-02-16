@@ -3,7 +3,6 @@ import BinContainer from './BinContainer';
 
 function Bins ({ onResize, binRefs, openedBinIndexRef, triggerMoveToBin }) {
 
-  //console.log("BINS RE-RENDER")
   const binSectionRef = useRef(null);
 
   if (!binRefs?.current) return null;
