@@ -21,19 +21,19 @@ make the font micro-stripy?
 #root {    
   display: flex;
   flex-direction: column;
-  margin: 0 0 0.75rem 0;
+  margin: clamp(1vh, 1.2vh + 0.5rem, 5vh); /* to create a physical terminal edge feel*/
+  padding: 0 0 0.5vh 0;
   aspect-ratio: 4 / 3;
   width: 100%;
-  max-height: 95vh;
+  max-height: 85vh;
   border-radius: 82px; /* to create the rounded corners of the CRT terminal */
-  box-sizing: border-box;
   font-family: "severance-headers"; 
   color: var(--terminal-color);
   background: radial-gradient(#00334e, #02162d, #000b14);
   border-left: 12px solid #001634;
   border-right: 12px solid #001634;
-  border-top: 3px solid #001634;
-  border-bottom: 3px solid #001634;
+  border-top: 4px solid #001634;
+  border-bottom: 4px solid #001634;
   font-weight: bolder;
   text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
   filter: contrast(0.8) blur(0.4px);
@@ -267,6 +267,7 @@ hr {
 .flying-item-container {
   font-size: 1.45rem;
   font-family: "severance-numbers";
+  z-index: -10;
 }
 
 footer {

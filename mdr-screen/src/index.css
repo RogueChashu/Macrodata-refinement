@@ -15,10 +15,9 @@ html, body {
 }
 
 body {
-  padding: 1rem; /* to create a physical terminal edge feel */
-  background-color: #001631;
+  background-color: #001326;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-sizing: border-box;
+  max-height: 100vh;
 }
