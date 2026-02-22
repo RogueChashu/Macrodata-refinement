@@ -93,36 +93,40 @@ function App() {
   return (
     <>  
       <ErrorOverlay />
-      <Header refinementProgressRef={refinementProgressRef} />
-      <hr />
-      <hr />
-      <Data 
-        refinementProgressRef={refinementProgressRef} 
-        openBin={openBin}
-        openedBinIndexRef={openedBinIndexRef}
-        prepareFlyingItems={prepareFlyingItems}
-      />
-      <hr />
-      <hr />
-      {binRefs.current.length > 0 ? 
-        <Bins 
-          onResize={handleBinsResize}
-          setBinsRect={setBinsRect}
-          binRefs={binRefs} 
+      <div ref={appRef} className='app-container'>
+        <Header refinementProgressRef={refinementProgressRef} />
+        <hr />
+        <hr />
+        <Data
+          visibleWindowRef={visibleWindowRef}
+          gridSize={gridSize}
+          refinementProgressRef={refinementProgressRef} 
+          openBin={openBin}
           openedBinIndexRef={openedBinIndexRef}
-          triggerMoveToBin={isMovingToBin}
-        /> :
-        <div>Loading...</div>
-      }
-      <hr />
-      <Footer />
-
-      <div className='flying-item-container'>
-        {flyingItems.map((item) => (
+          prepareFlyingItems={prepareFlyingItems}
+        />
+        <hr />
+        <hr />
+        {binRefs.current.length > 0 ? 
+          <Bins 
+            binRefs={binRefs} 
+            openedBinIndexRef={openedBinIndexRef}
+            triggerMoveToBin={isMovingToBin}
+          /> :
+          <div>Loading...</div>
+        }
+        <div className='flying-item-container'>
+          {flyingItems.map((item) => (
           <FlyingItem key={item.id} {...item} onComplete={handleItemArrival} />
-        ))}
+          ))}
+        </div>
+        <hr />
+        <Footer />
+
+
       </div>
-    
+
+
     </>
   );
 }

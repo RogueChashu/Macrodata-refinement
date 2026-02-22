@@ -19,24 +19,19 @@ make the font micro-stripy?
 }
 
 #root {    
-  display: flex;
-  flex-direction: column;
   margin: clamp(1vh, 1.2vh + 0.5rem, 5vh); /* to create a physical terminal edge feel*/
-  padding: 0 0 0.5vh 0;
   aspect-ratio: 4 / 3;
   width: 100%;
   max-height: 85vh;
   border-radius: 82px; /* to create the rounded corners of the CRT terminal */
   font-family: "severance-headers"; 
-  color: var(--terminal-color);
   background: radial-gradient(#00334e, #02162d, #000b14);
   border-left: 12px solid #001634;
   border-right: 12px solid #001634;
   border-top: 4px solid #001634;
   border-bottom: 4px solid #001634;
   font-weight: bolder;
-  text-shadow: 0px 0 1px rgba(0, 0, 0, 0.5);
-  filter: contrast(0.8) blur(0.4px);
+  filter: contrast(0.8) blur(0.5px);
   cursor: url("./assets/refinementCursor.svg"), auto;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -44,6 +39,20 @@ make the font micro-stripy?
   min-width: 720px;
 }
  
+.app-container {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0 0.5vh 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* fill #root */
+  
+  color: var(--terminal-color);
+  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.5);
+}
+
 .error-overlay {
   display: none;
 }
@@ -86,8 +95,9 @@ hr {
 
 #visibleWindow {
   position: relative;
-  flex-grow: 1;
+  flex: 1; /* fill the app-container */
   overflow: hidden;
+  min-height: 0;
   height: 100%;
   width: 100%;
   left: 0;
@@ -96,9 +106,9 @@ hr {
 }
 
 .macrodataContainer {
-  overflow: hidden;
-  position: absolute;
+  overflow: hidden !important; 
   scrollbar-width: none;
+
   -ms-overflow-style: none;
   transition: margin 0.35s ease-in-out;
 }
