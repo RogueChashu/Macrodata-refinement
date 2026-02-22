@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useEffect, useCallback, useRef, memo } from 'react';
 import { FixedSizeGrid as Macrodata } from 'react-window';
 import { useSpring } from 'react-spring';
 import determineItemState, { animationStates } from './determineItemState.js';
@@ -119,7 +119,9 @@ const MOUSE_WHEEL_CONFIG = {
 }
 
 
-function Data ({ 
+function Data ({
+  visibleWindowRef,
+  gridSize,
   refinementProgressRef, 
   openBin,
   openedBinIndexRef, 
@@ -140,10 +142,7 @@ function Data ({
     },
   }));
 
-  const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
-
   const unrefinedDataRef = useRef(_generateData());
-  const visibleWindowRef = useRef(null);
   const gridRef = useRef(null);
   const animationFrameId = useRef(null);
   const startTimeRef = useRef(performance.now());
@@ -319,7 +318,7 @@ function Data ({
         });
       }, 16) // 16ms frequency, so ~60 frames per second
     }
-  }, [api, spring, gridSize]);
+  }, [api, spring, gridSize, visibleWindowRef]);
 
   const handleWheelScroll = useCallback((e) => {
 
@@ -380,7 +379,7 @@ function Data ({
       config: MOUSE_WHEEL_CONFIG,
     })
 
-  }, [api, gridSize])
+  }, [api, gridSize, visibleWindowRef])
 
   // React onWheel is passive and can pool mouse events, resulting in a jerky 
   // scrolling. An eventListener for the mouse wheel scrolling was used instead
@@ -431,32 +430,8 @@ function Data ({
         delete targetData.flagged;
       }
     }        
-  }, [spring])
+  }, [spring, visibleWindowRef])
 
-  // To ensure the Macrodata grid follows the visibleWindow's dimensions when user resizes the window:
-  useEffect(() => {
-    // This function ensures user can resize window and grid's dimensions will adapt
-    const updateGridSize = () => {
-      if (visibleWindowRef.current) {
-        const { width, height } = visibleWindowRef.current.getBoundingClientRect();
-        setGridSize({ width, height });
-        //console.log('RESIZER RENDER!!!')
-      }
-    }
-
-    updateGridSize();
-  
-    const resizeObserver = new ResizeObserver(updateGridSize)
-    if (visibleWindowRef.current) {
-      resizeObserver.observe(visibleWindowRef.current);
-    }
-
-    return () => {
-      if (visibleWindowRef.current) {
-        resizeObserver.unobserve(visibleWindowRef.current);
-      }
-    }
-  }, []);
 
   function Row({ columnIndex, rowIndex, style }) {
     const data = unrefinedDataRef.current[rowIndex][columnIndex];

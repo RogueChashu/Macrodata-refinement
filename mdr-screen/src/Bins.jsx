@@ -1,26 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import BinContainer from './BinContainer';
 
-function Bins ({ onResize, binRefs, openedBinIndexRef, triggerMoveToBin }) {
+function Bins ({ binRefs, openedBinIndexRef, triggerMoveToBin }) {
 
   const binSectionRef = useRef(null);
 
   if (!binRefs?.current) return null;
-
-  useEffect(() => {
-    const binSection = binSectionRef.current;
-    if (!binSection) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      onResize();
-    });
-
-    resizeObserver.observe(binSection);
-
-    return () => {
-      resizeObserver.unobserve(binSection);
-    }
-  },[]);
 
   return (
     <div
