@@ -182,7 +182,7 @@ function Data ({
     }
   };
 
-  const refineBadData = (targetBinIndex) => {
+  const refineBadData = useCallback((targetBinIndex) => {
     const refinementProgress = refinementProgressRef.current;
     let refinedData = 0;
 
@@ -190,13 +190,13 @@ function Data ({
       row.map((item) => {
         if (item.flagged && !item.isRefining) {
           item.isRefining = true;
-          openBin(targetBinIndex); // start opening the box asap
+          openBin(targetBinIndex);  // start opening the box asap
           item.bad && refinedData++;
         }
       });
     });
     refinementProgress.refined += refinedData;
-  };
+  }, [openBin, refinementProgressRef]);
 
   const handleKeyMove = useCallback((e) => {
     const stepSize = 50;
@@ -243,12 +243,13 @@ function Data ({
       default:
         return;
     }
+
     api.start({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
       config: KEYBOARD_SCROLL_CONFIG,
     })
-  }, [api, spring, gridSize, unrefinedDataRef]);
+  }, [api, spring, gridSize, unrefinedDataRef, refineBadData]);
 
   const handleMouseMove = useCallback((e) => {
     if (!visibleWindowRef.current || !gridRef.current) return;
