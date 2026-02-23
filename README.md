@@ -32,6 +32,9 @@ Ever wished to become a macrodata refiner and look for scary numbers? I have. Th
   + Data being refined migrate to the chosen bin while an animation shows the bin opening and closing to accept the *bad data*
   + When refining bad data, the refinement progress updates (refining good data doesn't go into the refinement progress)
   + Upon refining numbers, new numbers slowly appear and adopt the behaviors described above.
+  + Display can be resized and remain functional
+  + If CRT display falls under 720 x 600px, Sevy appears to warn the user to increase display size.
+  + Display width is capped at 1500px for keeping app efficiency (too many numbers moving otherwise).
 
 ### Notes
 
