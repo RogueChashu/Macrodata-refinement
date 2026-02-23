@@ -209,6 +209,8 @@ function Data ({
 
     e.preventDefault();
 
+    let targetBinIndex = 0;
+
     switch (e.key){
       case 'a':
       case 'ArrowLeft':
@@ -237,7 +239,7 @@ function Data ({
       case '3':
       case '4':
       case '5':
-        const targetBinIndex = parseInt(e.key) -1;
+        targetBinIndex = parseInt(e.key) -1;
         refineBadData(targetBinIndex);
         break;
       default:
