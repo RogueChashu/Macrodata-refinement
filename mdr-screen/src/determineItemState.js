@@ -14,8 +14,6 @@ const animationStates = {
     const { div, data, delay } = numberInstance;
     const translateX = (Math.sin((elapsedTime + delay) * swayAngularFreq) * swayAmplitude);
 
-    //console.log(data.delay)
-
     if (data.currentScale > minScale) {
       div.style.transition = `transform 0.35s ease-out`;
     }
@@ -26,8 +24,6 @@ const animationStates = {
   PROXIMITY_SCALING: (numberInstance, dist, minScale, maxScale, radius) => {
     const { data, div  } = numberInstance;
     const scale = calculateProximityScale(dist, minScale, maxScale, radius);
-
-    //const city1 = user?.address?.city ?? 'Unknown City'; CHECK THIS OUT AGAIN
 
     if (data.lastDist === undefined || dist < data.lastDist) {
       div.style.transition = `transform 0.05s ease-in-out`;

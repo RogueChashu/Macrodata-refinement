@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useEffect, useCallback, useRef, memo } from 'react';
 import { FixedSizeGrid as Macrodata } from 'react-window';
 import { useSpring } from 'react-spring';
 import determineItemState, { animationStates } from './determineItemState.js';
@@ -101,17 +101,27 @@ function _makeScaryNumbers (data, rows, columns) {
 
 const KEYBOARD_SCROLL_CONFIG = {
   mass: 1,
-  tension: 200, // slower, gentle feel
-  friction: 26
+  tension: 210,
+  friction: 20
 };
 
-const MOUSE_SCROLL_CONFIG = {
+const MOUSE_EDGE_SCROLL_CONFIG = {
+  mass: 1,      
+  tension: 210,   
+  friction: 30    // the higher the value, the faster it brakes, preventing bouncing.
+};
+
+const MOUSE_WHEEL_CONFIG = {
   mass: 1,
-  tension: 800, //faster, more responsive feel. Higher the value, the snappier it is
-  friction: 25 // the higher the value, the faster it brakes.
-};
+  tension: 210, // High enough to keep up with rapid scrolling
+  friction: 40, 
+  clamp: true
+}
 
-function Data ({ 
+
+function Data ({
+  visibleWindowRef,
+  gridSize,
   refinementProgressRef, 
   openBin,
   openedBinIndexRef, 
@@ -121,7 +131,7 @@ function Data ({
   const [spring, api] = useSpring(() => ({
     scrollTop: 0,
     scrollLeft: 0,
-    config: KEYBOARD_SCROLL_CONFIG,
+
     onChange: ({ value }) => {
       if (gridRef.current) {
         gridRef.current.scrollTo({
@@ -132,12 +142,7 @@ function Data ({
     },
   }));
 
-  //console.log('I AM RENDERING!!');
-  
-  const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
-
   const unrefinedDataRef = useRef(_generateData());
-  const visibleWindowRef = useRef(null);
   const gridRef = useRef(null);
   const animationFrameId = useRef(null);
   const startTimeRef = useRef(performance.now());
@@ -145,6 +150,7 @@ function Data ({
   const edgeScrollIntervalRef = useRef(null);
   const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.)
   const visibleItemsRef = useRef(new Map());
+
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
@@ -158,7 +164,7 @@ function Data ({
     })
     const refinementProgress = refinementProgressRef.current;
     refinementProgress.totalBadData = totalBadData;
-  }, [])
+  }, [refinementProgressRef, visibleWindowRef])
 
   const replaceRefinedData = (rowIndex, columnIndex) => {
     const newData = _generateNumber();
@@ -176,7 +182,7 @@ function Data ({
     }
   };
 
-  const refineBadData = (targetBinIndex) => {
+  const refineBadData = useCallback((targetBinIndex) => {
     const refinementProgress = refinementProgressRef.current;
     let refinedData = 0;
 
@@ -184,13 +190,13 @@ function Data ({
       row.map((item) => {
         if (item.flagged && !item.isRefining) {
           item.isRefining = true;
-          openBin(targetBinIndex); // start opening the box asap
+          openBin(targetBinIndex);  // start opening the box asap
           item.bad && refinedData++;
         }
       });
     });
     refinementProgress.refined += refinedData;
-  };
+  }, [openBin, refinementProgressRef]);
 
   const handleKeyMove = useCallback((e) => {
     const stepSize = 50;
@@ -202,6 +208,8 @@ function Data ({
     if (!gridRef.current || !unrefinedDataRef.current) return;
 
     e.preventDefault();
+
+    let targetBinIndex = 0;
 
     switch (e.key){
       case 'a':
@@ -231,17 +239,19 @@ function Data ({
       case '3':
       case '4':
       case '5':
-        const targetBinIndex = parseInt(e.key) -1;
+        targetBinIndex = parseInt(e.key) -1;
         refineBadData(targetBinIndex);
         break;
       default:
         return;
     }
+
     api.start({
       scrollTop: newScrollTop,
       scrollLeft: newScrollLeft,
+      config: KEYBOARD_SCROLL_CONFIG,
     })
-  }, [api, spring, gridSize, unrefinedDataRef]);
+  }, [api, spring, gridSize, unrefinedDataRef, refineBadData]);
 
   const handleMouseMove = useCallback((e) => {
     if (!visibleWindowRef.current || !gridRef.current) return;
@@ -307,43 +317,79 @@ function Data ({
         api.start({
           scrollTop: newScrollTop,
           scrollLeft: newScrollLeft,
-          config: MOUSE_SCROLL_CONFIG,
+          config: MOUSE_EDGE_SCROLL_CONFIG,
         });
       }, 16) // 16ms frequency, so ~60 frames per second
     }
-  }, [api, spring, gridSize]);
+  }, [api, spring, gridSize, visibleWindowRef]);
 
-  const handleScroll = useCallback((e) => {
+  const handleWheelScroll = useCallback((e) => {
+
+    e.preventDefault();
+
     if (!visibleWindowRef.current || !gridRef.current) return;
 
     const currentScrollTop = spring.scrollTop.get();
     const currentScrollLeft = spring.scrollLeft.get();
-    let newScrollTop = currentScrollTop;
-    let newScrollLeft = currentScrollLeft;
-    
+    let targetTop = currentScrollTop;
+    let targetLeft = currentScrollLeft;
 
-    // Since laptop trackpads are more commonly 2D browsing, 
+    // Since laptop trackpads are more commonly doing 2D browsing, 
     // the hardware sends a native horizontal signal to the browser,
     // changing the deltaX. Typically, mice do 1D browsing and we
-    // need to tell the browser how to change the deltaX.
+    // need to tell the browser how to do the horizontal scrolling without
+    // deltaX.
     if (e.shiftKey === true) {
       // Pressing 'Shift' doesn't change the deltaX when wheel mousing, 
-      // but pressed or not
-      // using the wheel changes the deltaY. This is the way to know
-      // the amount/ direction to apply to horizontal scrolling
-      newScrollLeft = newScrollLeft + e.deltaY;
+      // but deltaY does. This is the way to know the amount/ direction 
+      // to apply to horizontal scrolling.
+     
+      if (Math.sign(e.deltaY) > 0) {        // when mouse scrolling right
+        targetLeft = Math.min(
+          targetLeft + e.deltaY, 
+          unrefinedDataRef.current[0].length * 80 - gridSize.width
+        );
+      } else if (Math.sign(e.deltaY) < 0) { // when mouse scrolling left
+        targetLeft = Math.max(0, targetLeft + e.deltaY);
+      }
     } else {
-      // Placing the regular scroll here so it doesn't also fire when we
-      // horizontal scroll
-      newScrollTop = newScrollTop + e.deltaY;
+      // Placing the regular up/down mouse scroll here so it doesn't also 
+      // fire when we horizontal mouse scroll
+      if (Math.sign(e.deltaY) > 0) {        // when mouse scrolling down
+        targetTop = Math.min(
+          targetTop + e.deltaY,
+          unrefinedDataRef.current.length * 80 - gridSize.height
+        );
+      } else if (Math.sign(e.deltaY) < 0) {   // when mouse scrolling up
+        targetTop = Math.max(0, targetTop + e.deltaY);
+      } else if (Math.sign(e.deltaX) > 0) {   // when scrolling right w/ trackpad
+        targetLeft = Math.min(
+          targetLeft + e.deltaX,
+          unrefinedDataRef.current.length * 80 - gridSize.height
+        );
+      } else if (Math.sign(e.deltaX) < 0) { // when scrolling left w/ trackpad
+        targetLeft = Math.max(0, targetLeft + e.deltaX);
+      }
     }
 
     api.start({
-      scrollTop: newScrollTop,
-      scrollLeft: newScrollLeft,
+      scrollTop: targetTop,
+      scrollLeft: targetLeft,
+      config: MOUSE_WHEEL_CONFIG,
     })
 
-  }, [api, spring])
+  }, [api, gridSize, visibleWindowRef, spring])
+
+  // React onWheel is passive and can pool mouse events, resulting in a jerky 
+  // scrolling. An eventListener for the mouse wheel scrolling was used instead
+  // so smooth mouse wheel scrolling can take place. 
+  useEffect(() => {
+    const el = gridRef.current?._outerRef;
+    if (el) {
+      el.addEventListener('wheel', handleWheelScroll, { passive: false });
+      return () => el.removeEventListener('wheel', handleWheelScroll);
+    }
+  }, [handleWheelScroll])
 
   const handleMouseLeave = useCallback(() => {
     mousePosRef.current = { x: -999, y:-999 };
@@ -383,32 +429,8 @@ function Data ({
         delete targetData.flagged;
       }
     }        
-  }, [spring])
+  }, [spring, visibleWindowRef])
 
-  // To ensure the Macrodata grid follows the visibleWindow's dimensions when user resizes the window:
-  useEffect(() => {
-    // This function ensures user can resize window and grid's dimensions will adapt
-    const updateGridSize = () => {
-      if (visibleWindowRef.current) {
-        const { width, height } = visibleWindowRef.current.getBoundingClientRect();
-        setGridSize({ width, height });
-        //console.log('RESIZER RENDER!!!')
-      }
-    }
-
-    updateGridSize();
-  
-    const resizeObserver = new ResizeObserver(updateGridSize)
-    if (visibleWindowRef.current) {
-      resizeObserver.observe(visibleWindowRef.current);
-    }
-
-    return () => {
-      if (visibleWindowRef.current) {
-        resizeObserver.unobserve(visibleWindowRef.current);
-      }
-    }
-  }, []);
 
   function Row({ columnIndex, rowIndex, style }) {
     const data = unrefinedDataRef.current[rowIndex][columnIndex];
@@ -604,7 +626,6 @@ function Data ({
       ref={visibleWindowRef}
       onKeyDown={handleKeyMove}
       onMouseMove={handleMouseMove}
-      onWheel={handleScroll} 
       onMouseLeave={handleMouseLeave}
       onClick={handleGridClick}  
       tabIndex={-1} // make it focusable, but removed from the natural tab order

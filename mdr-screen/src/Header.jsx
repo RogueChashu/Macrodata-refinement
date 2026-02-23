@@ -1,4 +1,4 @@
-import  lumonLogo  from './assets/lumon1-test.png';
+import  lumonLogo  from './assets/lumon-logo.png';
 
 function Header ({ refinementProgressRef }) {
   const filename = 'Siena'
