@@ -4,7 +4,7 @@
 
 [View Live Demo](https://roguechashu.github.io/Macrodata-refinement/)
 
-![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/initial-setup/mdr-screen/src/assets/2026-01-30%20Demo.gif?raw=true&v=2)
+![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/initial-setup/mdr-screen/src/assets/Demo2026-02-23.gif?raw=true)
 
 Ever wished to become a macrodata refiner and look for scary numbers? I have. That's why I built a macrodata terminal simulation.
 
@@ -33,7 +33,7 @@ Ever wished to become a macrodata refiner and look for scary numbers? I have. Th
   + When refining bad data, the refinement progress updates (refining good data doesn't go into the refinement progress)
   + Upon refining numbers, new numbers slowly appear and adopt the behaviors described above.
   + Display can be resized and remain functional
-  + If CRT display falls under 720 x 600px, Sevy appears to warn the user to increase display size.
+  + If CRT display falls under 720 px width or 600 px height, Sevy appears to warn the user to increase display size.
   + Display width is capped at 1500px for keeping app efficiency (too many numbers moving otherwise).
 
 ### Notes
@@ -47,7 +47,7 @@ The app is intended for desktop use only (for now).
 - Git
 
 ### Steps
-1. git clone https://github.com/RogueChashu/Macrodata-refinement.git`
+1. `git clone https://github.com/RogueChashu/Macrodata-refinement.git`
 2. `cd Macrodata-refinement`
 3. `npm install` 
 4. `npm run dev`
