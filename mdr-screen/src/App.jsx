@@ -67,7 +67,6 @@ function App() {
     const flyingObjectRect = div.getBoundingClientRect();
     const targetBinRect = binsRect[openedBinIndexRef.current];
 
-
     const newFlyingItem = {
       id: `${item.rowIndex}-${item.columnIndex}`,
       value: item.value,
