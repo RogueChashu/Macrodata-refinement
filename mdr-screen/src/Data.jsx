@@ -164,7 +164,7 @@ function Data ({
     })
     const refinementProgress = refinementProgressRef.current;
     refinementProgress.totalBadData = totalBadData;
-  }, [])
+  }, [refinementProgressRef, visibleWindowRef])
 
   const replaceRefinedData = (rowIndex, columnIndex) => {
     const newData = _generateNumber();
