@@ -127,11 +127,7 @@ function App() {
         </div>
         <hr />
         <Footer />
-
-
       </div>
-
-
     </>
   );
 }
