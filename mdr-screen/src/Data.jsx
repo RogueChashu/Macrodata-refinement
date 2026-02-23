@@ -114,7 +114,7 @@ const MOUSE_EDGE_SCROLL_CONFIG = {
 const MOUSE_WHEEL_CONFIG = {
   mass: 1,
   tension: 210, // High enough to keep up with rapid scrolling
-  friction: 90, // high enough to prevent "wobble" at the end of scroll
+  friction: 40, 
   clamp: true
 }
 
@@ -150,7 +150,7 @@ function Data ({
   const edgeScrollIntervalRef = useRef(null);
   const activeEdgeRef = useRef(null); // to track which edge is active (up? down? etc.)
   const visibleItemsRef = useRef(new Map());
-  const mouseScrollTargetRef = useRef({ top: 0, left: 0 });
+
 
   useEffect(() => {
     //capture the initial focus when the component mounts, so the user can interact with the data: 
@@ -326,12 +326,10 @@ function Data ({
 
     if (!visibleWindowRef.current || !gridRef.current) return;
 
-    // because wheel scrolling is an intensive event, managing the
-    // target and provide that to spring allows to prevent the jittering,
-    // hence why for mouse wheel scrolling the approach was slightly
-    // different and the target got its own ref.
-    let targetTop = mouseScrollTargetRef.current.top;
-    let targetLeft = mouseScrollTargetRef.current.left;
+    const currentScrollTop = spring.scrollTop.get();
+    const currentScrollLeft = spring.scrollLeft.get();
+    let targetTop = currentScrollTop;
+    let targetLeft = currentScrollLeft;
 
     // Since laptop trackpads are more commonly doing 2D browsing, 
     // the hardware sends a native horizontal signal to the browser,
@@ -371,15 +369,13 @@ function Data ({
       }
     }
 
-    mouseScrollTargetRef.current = { top: targetTop, left: targetLeft };
-
     api.start({
       scrollTop: targetTop,
       scrollLeft: targetLeft,
       config: MOUSE_WHEEL_CONFIG,
     })
 
-  }, [api, gridSize, visibleWindowRef])
+  }, [api, gridSize, visibleWindowRef, spring])
 
   // React onWheel is passive and can pool mouse events, resulting in a jerky 
   // scrolling. An eventListener for the mouse wheel scrolling was used instead
