@@ -4,7 +4,7 @@
 
 [View Live Demo](https://roguechashu.github.io/Macrodata-refinement/)
 
-![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/initial-setup/mdr-screen/src/assets/2026-01-30%20Demo.gif?raw=true)
+![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/initial-setup/mdr-screen/src/assets/2026-01-30%20Demo.gif?raw=true&v=2)
 
 Ever wished to become a macrodata refiner and look for scary numbers? I have. That's why I built a macrodata terminal simulation.
 
