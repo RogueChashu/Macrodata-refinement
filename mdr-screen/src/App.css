@@ -26,13 +26,14 @@ make the font micro-stripy?
   max-height: 85vh;
   border-radius: 82px; /* to create the rounded corners of the CRT terminal */
   font-family: "severance-headers"; 
-  background: radial-gradient(#00334e, #02162d, #000b14);
-  border-left: 12px solid #001634;
-  border-right: 12px solid #001634;
-  border-top: 4px solid #001634;
-  border-bottom: 4px solid #001634;
+  background-color: var(--CRT-background-color);
+  /*background: radial-gradient(#00334e, #02162d, #000b14);*****************************/
+  border-left: 12px solid #02283f;
+  border-right: 12px solid #02283f;
+  border-top: 4px solid #02283f;
+  border-bottom: 4px solid #02283f;
   font-weight: bolder;
-  filter: blur(0.1px); /************************************************/
+  filter: blur(0.1px); /*********************************************************/
   cursor: url("./assets/refinementCursor.svg"), auto;
   overflow-x: hidden;
   overflow-y: hidden;
