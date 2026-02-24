@@ -13,9 +13,10 @@ make the font micro-stripy?
 }
 
 :root {
-  --terminal-color: #46c2dd;
+  --terminal-color: #46c2dd; /* rgb: 70, 194, 221 */
   --border-radius: 1px;
   --scaleFactor: 1;
+  --phosphor-glow: 2.5px 2.5px 2.5px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
 }
 
 #root {    
@@ -31,7 +32,7 @@ make the font micro-stripy?
   border-top: 4px solid #001634;
   border-bottom: 4px solid #001634;
   font-weight: bolder;
-  filter: contrast(0.8) blur(0.5px);
+  filter: blur(0.1px); /************************************************/
   cursor: url("./assets/refinementCursor.svg"), auto;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -48,9 +49,7 @@ make the font micro-stripy?
   display: flex;
   flex-direction: column;
   flex: 1; /* fill #root */
-  
   color: var(--terminal-color);
-  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.5);
 }
 
 .error-overlay {
@@ -70,6 +69,7 @@ make the font micro-stripy?
   position: relative;
   align-content: center;
   gap: 2rem;
+  filter: drop-shadow(var(--phosphor-glow));
 }
 
 .refinementProgress{
@@ -86,11 +86,13 @@ make the font micro-stripy?
   min-width: 0;
   min-height: 0;
   object-fit: cover;
+  filter: drop-shadow(var(--phosphor-glow));
 }
 
 hr {
   border-top: 3px solid var(--terminal-color);
-  margin: 0.9px 0;
+  margin: 1.1px 0;
+  filter: drop-shadow(var(--phosphor-glow));
 }
 
 #visibleWindow {
@@ -108,8 +110,10 @@ hr {
 .macrodataContainer {
   overflow: hidden !important; 
   scrollbar-width: none;
-
   -ms-overflow-style: none;
+  /* text-shadow applied in piecemeal fashion to components to avoid applying the effect 
+  on the entire grid. Also, avoiding 'filter: drop-shadow()' on numbers for performance reasons */
+  text-shadow: 2px 2px 4px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
   transition: margin 0.35s ease-in-out;
 }
 
@@ -136,6 +140,7 @@ hr {
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 0.3rem 2rem;
   font-family: "severance-numbers";
+  filter: drop-shadow(2px 2px 4px rgba(70, 194, 221, 0.5)); /* the phosphor glow of CRT */
 }
 
 .container01,
@@ -278,11 +283,13 @@ hr {
   font-size: 1.45rem;
   font-family: "severance-numbers";
   z-index: -10;
+  text-shadow: var(--phosphor-glow);
 }
 
 footer {
   text-align: center;
   font-size: 1.3rem;
+  text-shadow: 2px 2px 4px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
 }
 
 /* When the screen is too small to operate the refinement process, we show the error component with Sevy */
