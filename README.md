@@ -2,7 +2,7 @@
 
 *"Each category of numbers presents in such an order as to elicit an emotional response in the refiner"* --Mark Scout, Severance
 
-[View Live Demo](https://roguechashu.github.io/Macrodata-refinement/)
+![View Live Demo](https://roguechashu.github.io/Macrodata-refinement/)
 
 ![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/initial-setup/mdr-screen/src/assets/Demo2026-02-23.gif?raw=true)
 
