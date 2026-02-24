@@ -113,7 +113,7 @@ hr {
   -ms-overflow-style: none;
   /* text-shadow applied in piecemeal fashion to components to avoid applying the effect 
   on the entire grid. Also, avoiding 'filter: drop-shadow()' on numbers for performance reasons */
-  text-shadow: 2px 2px 4px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
+  text-shadow: var(--phosphor-glow);
   transition: margin 0.35s ease-in-out;
 }
 
@@ -140,7 +140,7 @@ hr {
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 0.3rem 2rem;
   font-family: "severance-numbers";
-  filter: drop-shadow(2px 2px 4px rgba(70, 194, 221, 0.5)); /* the phosphor glow of CRT */
+  filter: drop-shadow(var(--phosphor-glow)); /* the phosphor glow of CRT */
 }
 
 .container01,
@@ -289,7 +289,7 @@ hr {
 footer {
   text-align: center;
   font-size: 1.3rem;
-  text-shadow: 2px 2px 4px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
+  text-shadow: var(--phosphor-glow); /* the phosphor glow of CRT */
 }
 
 /* When the screen is too small to operate the refinement process, we show the error component with Sevy */
