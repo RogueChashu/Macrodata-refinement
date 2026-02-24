@@ -58,9 +58,9 @@ make the font micro-stripy?
 }
 
 .header {
-  margin: 2.75rem 3rem 1.5rem 3rem;
-  padding-left: 0.5rem;
-  font-size: 1.5rem;
+  margin: 3.2rem 3rem 1.6rem 3rem;
+  padding-left: 0.7rem;
+  font-size: 1.8rem;
   border: 3px solid var(--terminal-color);
   border-right: 0;
   border-radius: var(--border-radius);
@@ -81,7 +81,7 @@ make the font micro-stripy?
 .lumonLogo {
   justify-self: end;
   position: absolute;
-  margin: -1rem -1.55rem -1.5rem 0.5rem;
+  margin: -1.15rem -1.55rem -1.5rem 0.5rem;
   width: auto;
   height: 190%;
   min-width: 0;
