@@ -16,24 +16,27 @@ make the font micro-stripy?
   --terminal-color: #46c2dd; /* rgb: 70, 194, 221 */
   --border-radius: 1px;
   --scaleFactor: 1;
-  --phosphor-glow: 2.5px 2.5px 2.5px rgba(70, 194, 221, 0.5); /* the phosphor glow of CRT */
+  --phosphor-core-glow: 0 0 2px rgba(70, 194, 221, 0.8);
+  --phosphor-soft-haze: 0 0 8px rgba(70, 194, 221, 0.3);
+  --CRT-background-color: #00334e;
 }
 
 #root {    
   margin: clamp(1vh, 1.2vh + 0.5rem, 5vh); /* to create a physical terminal edge feel*/
   aspect-ratio: 4 / 3;
   width: 100%;
-  max-height: 85vh;
+  max-height: 94vh;
   border-radius: 82px; /* to create the rounded corners of the CRT terminal */
   font-family: "severance-headers"; 
-  background-color: var(--CRT-background-color);
-  /*background: radial-gradient(#00334e, #02162d, #000b14);*****************************/
+  /* CRT vignette layered with background color */
+  background:
+    radial-gradient(circle, rgba(0,0,0,0), rgba(0,0,0,0.35), rgba(0,0,0, 0.7)),
+    var(--CRT-background-color);
   border-left: 12px solid #02283f;
   border-right: 12px solid #02283f;
   border-top: 4px solid #02283f;
   border-bottom: 4px solid #02283f;
   font-weight: bolder;
-  filter: blur(0.1px); /*********************************************************/
   cursor: url("./assets/refinementCursor.svg"), auto;
   overflow-x: hidden;
   overflow-y: hidden;
