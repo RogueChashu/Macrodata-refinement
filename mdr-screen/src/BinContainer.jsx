@@ -57,6 +57,7 @@ function BinContainer({ binRef, binNumber, isOpen, triggerMoveToBin }) {
 
   return (
     <div className={`container0${binNumber}`}>
+      <div className='bin-fill'></div>
       <div ref={binRef} 
       className={`bin0${binNumber}`}
       >

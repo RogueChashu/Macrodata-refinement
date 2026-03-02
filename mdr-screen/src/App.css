@@ -70,7 +70,10 @@ make the font micro-stripy?
   position: relative;
   align-content: center;
   gap: 2rem;
-  filter: drop-shadow(var(--phosphor-glow));
+  /* phosphor bloom. Drop-shadow used because it works on all elements of header at once */
+  filter: 
+    drop-shadow(var(--phosphor-core-glow)) 
+    drop-shadow(var(--phosphor-soft-haze));
 }
 
 .refinementProgress{
@@ -81,19 +84,19 @@ make the font micro-stripy?
 .lumonLogo {
   justify-self: end;
   position: absolute;
-  margin: -1.15rem -1.55rem -1.5rem 0.5rem;
+  margin: -1.05rem -1.55rem -1.5rem 0.5rem;
   width: auto;
   height: 190%;
   min-width: 0;
   min-height: 0;
   object-fit: cover;
-  filter: drop-shadow(var(--phosphor-glow));
 }
 
 hr {
-  border-top: 3px solid var(--terminal-color);
-  margin: 1.1px 0;
-  filter: drop-shadow(var(--phosphor-glow));
+  border: 1.5px solid var(--terminal-color);
+  margin: 1.5px 0;
+  /* phoshor bloom */
+  box-shadow: var(--phosphor-core-glow), var(--phosphor-soft-haze);
 }
 
 #visibleWindow {
@@ -112,9 +115,6 @@ hr {
   overflow: hidden !important; 
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* text-shadow applied in piecemeal fashion to components to avoid applying the effect 
-  on the entire grid. Also, avoiding 'filter: drop-shadow()' on numbers for performance reasons */
-  text-shadow: var(--phosphor-glow);
   transition: margin 0.35s ease-in-out;
 }
 
@@ -131,6 +131,8 @@ hr {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* phoshor bloom */
+  text-shadow: var(--phosphor-core-glow), var(--phosphor-soft-haze);
   transform: scale(var(--scaleFactor, 1));
   will-change: transform;
 } 
@@ -141,7 +143,6 @@ hr {
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 0.3rem 2rem;
   font-family: "severance-numbers";
-  filter: drop-shadow(var(--phosphor-glow)); /* the phosphor glow of CRT */
 }
 
 .container01,
@@ -152,6 +153,14 @@ hr {
   position: relative;
 }
 
+/* layer created to help add shadows on filled bin divs.*/
+.bin-fill {
+  position: absolute;
+  inset: 0;
+  background-color: #002031; /* can't be transparent, because a box isn't see through */
+  z-index: 999;
+}
+
 .bin01,
 .bin02,
 .bin03,
@@ -160,21 +169,24 @@ hr {
   position: relative;   
   text-align: center;
   z-index: 1000;
-  background-color: #02162d;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+  background: transparent;
+  filter: 
+    drop-shadow(var(--phosphor-core-glow)) 
+    drop-shadow(var(--phosphor-soft-haze));
 }
+
 
 /* State 0: idle */
 .binLid-top,
 .binLid-top.idle {
   position: absolute;
   z-index: 100;
-
   top: 0px;  /* Final position post-animation */
   left: 0px;
   width: calc(100% - 6px);
-  background-color: #02162d;
+  background-color: #002031; /* can't be transparent, because a box isn't see through */
   height: 11px;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
@@ -189,6 +201,11 @@ hr {
 .binLid-top.opening-sides,
 .binLid-top.closing-sides {
   transform: translateY(-14px);
+  box-shadow:
+    var(--phosphor-core-glow),
+    var(--phosphor-soft-haze),
+    inset var(--phosphor-core-glow),
+    inset var(--phosphor-soft-haze);
 }
 
 /* State 5: Closing Top Lid */
@@ -203,7 +220,7 @@ hr {
   width: calc(50% - 3px);
   height: 6px;
   z-Index: 10;
-  background-color: #02162d;
+  background-color: #002031; /* can't be transparent, because a box isn't see through */
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
   visibility: hidden;
@@ -226,6 +243,12 @@ hr {
 .binLid-left.closing-sides,
 .binLid-right.closing-sides {
   visibility: visible;
+  filter: 
+    drop-shadow(var(--phosphor-core-glow)) 
+    drop-shadow(var(--phosphor-soft-haze));
+  box-shadow: 
+    inset var(--phosphor-core-glow),
+    inset var(--phosphor-soft-haze);
 }
 
 /* Step 2: Animate Side Lids Opening */
@@ -278,19 +301,28 @@ hr {
   padding-left: 3px;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+  filter: 
+    drop-shadow(var(--phosphor-core-glow)) 
+    drop-shadow(var(--phosphor-soft-haze));
 }
 
 .flying-item-container {
   font-size: 1.45rem;
   font-family: "severance-numbers";
-  z-index: -10;
-  text-shadow: var(--phosphor-glow);
+  z-index: 1;
+  text-shadow: 
+    var(--phosphor-core-glow), 
+    var(--phosphor-soft-haze);
 }
 
 footer {
   text-align: center;
   font-size: 1.3rem;
-  text-shadow: var(--phosphor-glow); /* the phosphor glow of CRT */
+  /* phosphor bloom */
+  text-shadow: 
+    var(--phosphor-core-glow), 
+    var(--phosphor-soft-haze);
+  padding: 0 0 0.5vh 0;
 }
 
 /* When the screen is too small to operate the refinement process, we show the error component with Sevy */
