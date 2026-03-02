@@ -30,7 +30,7 @@ make the font micro-stripy?
   font-family: "severance-headers"; 
   /* CRT vignette layered with background color */
   background:
-    radial-gradient(circle, rgba(0,0,0,0), rgba(0,0,0,0.35), rgba(0,0,0, 0.7)),
+    radial-gradient(circle, rgba(0,0,0,0), rgba(0,0,0,0.3), rgba(0,0,0, 0.7)),
     var(--CRT-background-color);
   border-left: 12px solid #02283f;
   border-right: 12px solid #02283f;
