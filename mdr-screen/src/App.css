@@ -1,7 +1,3 @@
-/*TO DO: 
-make the font micro-stripy?
-*/
-
 @font-face {
   font-family: severance-numbers;
   src: url("./assets/PlusJakartaSans-VariableFont_wght.ttf");
@@ -44,26 +40,81 @@ make the font micro-stripy?
   min-width: 720px;
 }
  
+.error-overlay {
+  display: none;
+}
+
 .app-container {
   width: 100%;
   height: 100%;
   min-height: 0;
   margin: 0;
-  padding: 0 0 0.5vh 0;
   display: flex;
   flex-direction: column;
   flex: 1; /* fill #root */
   color: var(--terminal-color);
+  position: relative;
+  user-select: none;
+  /*animation: flicker 0.05s infinite, jitter 8s infinite;*/
 }
 
-.error-overlay {
-  display: none;
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  1% { opacity: 1.0; }
+  100% { opacity: 1.0; }
 }
+
+@keyframes jitter {
+  0% { transform: translateX(5px); }
+  1% { transform: translateX(-0.5px); }
+  100% { transform: translateX(-0.5px); }
+}
+
+  /* Create the scan lines. In the Data General Dasher, they appear static, so no need to animate them */
+.CRT-scanlines-overlay {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    rgba(0, 0, 0, 0) 2px, 
+    rgba(0, 0, 0, 0.9) 4px
+  );
+}
+
+/*
+.CRT-rollingBar-overlay {
+  height: 15%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(70, 194, 221, 0) 0%,
+    rgba(70, 194, 221, 0.03) 50%,
+    rgba(255, 255, 255, 0.1) 92%, /* white/cyan mix for peak of phosphor "heat" *
+    rgba(70, 194, 221, 0) 100%
+  );
+  animation: rollingbars 8s linear infinite;
+}*/
+
+@keyframes rollingbars {
+  from { transform: translateY(-100vh); }
+  to { transform: translateY(100vh); }
+}
+
 
 .header {
-  margin: 3.2rem 3rem 1.6rem 3rem;
+  margin: 2.5rem 3rem 1.6rem 3rem;
   padding-left: 0.7rem;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   border: 3px solid var(--terminal-color);
   border-right: 0;
   border-radius: var(--border-radius);
