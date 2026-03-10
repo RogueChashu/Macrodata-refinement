@@ -13,11 +13,10 @@ function App() {
   // putting the flying items in state is what allows the component to re-render loaded with the 
   // numbers to be flown to the bin handled by spring and secondarily, for the refinement progress to update.
   const [flyingItems, setFlyingItems] = useState([]);
-  const [binsRect, setBinsRect] = useState([]);
   const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
 
   // refinementProgress is stored in a Ref so it doesn't cause the
-  // Data component to re-render when it tells to update the progress if it were
+  // Data component to re-render when it tells to update the progress like if it were
   // in state. And, its content gets to be updated and rendered
   // when flyingItems trigger a render, so we also avoid unnecessary
   // renders. No need to cause a render outside of flying items anyway.
@@ -28,15 +27,7 @@ function App() {
   const appRef = useRef(null);
   const visibleWindowRef = useRef(null);
 
-
-  // Central resize logic
   const updateLayout = useCallback(() => {
-    const newRects = binRefs.current.map(ref => {
-      if (!ref.current) return {};
-      return ref.current.getBoundingClientRect();
-    });
-    setBinsRect(newRects);
-
     if (visibleWindowRef.current) {
       const { width, height } = visibleWindowRef.current.getBoundingClientRect();
       if (width > 0 && height > 0) {
@@ -60,12 +51,11 @@ function App() {
 
   const prepareFlyingItems = useCallback((item, div) => {
     if (openedBinIndexRef.current === null) return;
-      
-    // Since we have a CTR display edge, we need to deduct the 
-    // container's position to get the appropriate flying item position.
+
     const appContainer = appRef.current.getBoundingClientRect();
     const flyingObjectRect = div.getBoundingClientRect();
-    const targetBinRect = binsRect[openedBinIndexRef.current];
+    const targetBin = binRefs.current[openedBinIndexRef.current].current;
+    const targetBinRect = targetBin.getBoundingClientRect();
 
     const newFlyingItem = {
       id: `${item.rowIndex}-${item.columnIndex}`,
@@ -85,7 +75,7 @@ function App() {
       },
     };
     setFlyingItems(prev => [...prev, newFlyingItem]); 
-  }, [binsRect]);
+  }, []);
 
   // Called when the FlyingItem arrives at the bin
   const handleItemArrival = useCallback(() => {
