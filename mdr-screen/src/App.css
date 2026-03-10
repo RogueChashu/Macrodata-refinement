@@ -103,7 +103,7 @@
   height:fit-content;
   position: relative;
   align-content: center;
-  gap: 2rem;
+  gap: 2.8rem;
   pointer-events: none;
   /* phosphor bloom */
   box-shadow: var(--box-bloom);
