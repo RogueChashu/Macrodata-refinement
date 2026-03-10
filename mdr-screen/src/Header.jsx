@@ -10,7 +10,10 @@ function Header ({ refinementProgressRef }) {
       <div className='refinementProgress'>
         {Math.round(refinementProgress.refined / refinementProgress.totalBadData * 100) || 0}% complete
       </div>
-      <img className='lumonLogo' src={lumonLogo} />
+      <div className='logo-stack'>
+        <img className='lumonLogo bloom' src={lumonLogo} />
+        <img className='lumonLogo core' src={lumonLogo} />
+      </div>
     </div>
   )
 }

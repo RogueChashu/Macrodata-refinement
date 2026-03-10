@@ -127,8 +127,7 @@ function App() {
         </div>
         <hr />
         <Footer />
-        <div className='CRT-scanlines-overlay' />
-        <div className='CRT-rollingBar-overlay' />
+        <div className='CRT-static-overlay' />
       </div>
     </>
   );
