@@ -120,7 +120,7 @@
   text-shadow: var(--text-bloom);
 }
 
-/* Stacking and blurring logos was chosen as applying a filter: drop-shadow() was creating a ghost 
+/* Stacking and blurring logos was chosen since applying a 'filter: drop-shadow()' was creating a ghost 
 of the logo */
 .logo-stack {
   justify-self: end;
