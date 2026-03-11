@@ -4,7 +4,7 @@
 
 [View Live Demo](https://roguechashu.github.io/Macrodata-refinement/)
 
-![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/main/mdr-screen/src/assets/Demo2026-02-23.gif?raw=true)
+![Preview of refinement process](https://github.com/RogueChashu/Macrodata-refinement/blob/main/mdr-screen/src/assets/Demo2026-03-10.gif?raw=true)
 
 Ever wished to become a macrodata refiner and look for scary numbers? I have. That's why I built a macrodata terminal simulation.
 
@@ -13,6 +13,14 @@ Ever wished to become a macrodata refiner and look for scary numbers? I have. Th
 - Styling: Vanilla CSS
 - Animation: react-spring
 - Performance: react-window
+
+## Quick Controls
++ Scrolling: 
+  - Arrow keys (← ↑ → ↓) or a,s,w,d
+  - Trackpad or mouse wheel (hold 'shift' for horizontal scrolling)
+  - Edge scrolling
++ Select numbers: click on chosen numbers (click again to unselect)
++ Refining numbers: Press 1–5 to send your selection to the corresponding bin.
 
 ## Features:
   + Large grid of numbers with only a section virtualized for improved efficiency
@@ -33,8 +41,9 @@ Ever wished to become a macrodata refiner and look for scary numbers? I have. Th
   + When refining bad data, the refinement progress updates (refining good data doesn't go into the refinement progress)
   + Upon refining numbers, new numbers slowly appear and adopt the behaviors described above.
   + Display can be resized and remain functional
-  + If CRT display falls under 720 px width or 600 px height, Sevy appears to warn the user to increase display size.
+  + If CRT display falls under 720px width or 600px height, Sevy appears to warn the user to increase display size.
   + Display width is capped at 1500px for keeping app efficiency (too many numbers moving otherwise).
+  + Data General Dasher CRT look
 
 ### Notes
 

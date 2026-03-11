@@ -1,7 +1,3 @@
-/*TO DO: 
-make the font micro-stripy?
-*/
-
 @font-face {
   font-family: severance-numbers;
   src: url("./assets/PlusJakartaSans-VariableFont_wght.ttf");
@@ -13,25 +9,35 @@ make the font micro-stripy?
 }
 
 :root {
-  --terminal-color: #46c2dd;
+  --terminal-color: #5ff5ff; /*#46c2dd; /* rgb: 70, 194, 221 */
   --border-radius: 1px;
   --scaleFactor: 1;
+  /* the phosphor bloom settings are different for text than for lines */
+  --text-bloom:
+    0 0 1px rgba(255, 255, 255, 1),
+    0 0 2px #00e5ff,
+    0 0 4px rgba(0, 160, 255, 0.6);
+  --box-bloom:
+    0 0 1px #fff,
+    0 0 4px #00e5ff,
+    0 0 10px rgba(0, 200, 255, 0.3);
+  --CRT-background-color: #05111a;
+  font-variant-numeric: tabular-nums;
 }
 
 #root {    
   margin: clamp(1vh, 1.2vh + 0.5rem, 5vh); /* to create a physical terminal edge feel*/
   aspect-ratio: 4 / 3;
   width: 100%;
-  max-height: 85vh;
-  border-radius: 82px; /* to create the rounded corners of the CRT terminal */
+  max-height: 94vh;
+  border-radius: 86px; /* to create the rounded corners of the CRT terminal */
   font-family: "severance-headers"; 
-  background: radial-gradient(#00334e, #02162d, #000b14);
-  border-left: 12px solid #001634;
-  border-right: 12px solid #001634;
-  border-top: 4px solid #001634;
-  border-bottom: 4px solid #001634;
-  font-weight: bolder;
-  filter: contrast(0.8) blur(0.5px);
+  background-color: var(--CRT-background-color);
+  border-left: 12px solid #02283f;
+  border-right: 12px solid #02283f;
+  border-top: 4px solid #02283f;
+  border-bottom: 4px solid #02283f;
+  font-weight: 600;
   cursor: url("./assets/refinementCursor.svg"), auto;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -39,28 +45,56 @@ make the font micro-stripy?
   min-width: 720px;
 }
  
+.error-overlay {
+  display: none;
+}
+
 .app-container {
   width: 100%;
   height: 100%;
   min-height: 0;
   margin: 0;
-  padding: 0 0 0.5vh 0;
   display: flex;
   flex-direction: column;
-  flex: 1; /* fill #root */
-  
+  flex: 1;
   color: var(--terminal-color);
-  text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.5);
+  position: relative;
+  user-select: none;
+  filter: saturate(1.0) brightness(1.1) contrast(1.1);
 }
 
-.error-overlay {
-  display: none;
+/* Create the scan lines. In the Data General Dasher, they appear static, so no need to animate them */
+.CRT-static-overlay {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  pointer-events: none;
+  background: 
+    /* Layer 1: The Raster Glow (the blue center haze). 2 layers to smooth the concentric circles of the gradient */
+    radial-gradient(circle at center, rgba(0, 150, 255, 0.08) 0%, transparent 85%),
+    radial-gradient(circle at 45% 45%, rgba(0, 150, 255, 0.08) 0%, transparent 85%),
+    /* Layer 2: Vignette */
+    radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.6) 100%),
+    /* layer 3: Scanlines */
+    repeating-linear-gradient(
+      to bottom, 
+      transparent 0px,
+      transparent 1px,      
+      rgba(0, 0, 0, 0.45) 1px,
+      rgba(0, 0, 0, 0.45) 2px
+  );
+  background-size: 100% 100%, 100% 100%, 100% 2px;
+  backdrop-filter: none;
+  mask-image: radial-gradient(circle, black 70%, transparent 100%);
 }
 
 .header {
-  margin: 2.75rem 3rem 1.5rem 3rem;
-  padding-left: 0.5rem;
-  font-size: 1.5rem;
+  margin: 2.5rem 3rem 1.6rem 3rem;
+  padding-left: 0.7rem;
+  font-size: 1.6rem;
   border: 3px solid var(--terminal-color);
   border-right: 0;
   border-radius: var(--border-radius);
@@ -69,7 +103,10 @@ make the font micro-stripy?
   height:fit-content;
   position: relative;
   align-content: center;
-  gap: 2rem;
+  gap: 2.8rem;
+  pointer-events: none;
+  /* phosphor bloom */
+  box-shadow: var(--box-bloom);
 }
 
 .refinementProgress{
@@ -77,20 +114,50 @@ make the font micro-stripy?
   margin-right: 1.25rem;
 }
 
-.lumonLogo {
+.filename, 
+.refinementProgress {
+  /* phosphor bloom */
+  text-shadow: var(--text-bloom);
+}
+
+/* Stacking and blurring logos was chosen since applying a 'filter: drop-shadow()' was creating a ghost 
+of the logo */
+.logo-stack {
   justify-self: end;
   position: absolute;
-  margin: -1rem -1.55rem -1.5rem 0.5rem;
+  overflow: visible;
+  top: -1.1rem;
+  right: -1.55rem;
+  height: 4.65rem;
   width: auto;
-  height: 190%;
-  min-width: 0;
-  min-height: 0;
-  object-fit: cover;
+}
+
+.lumonLogo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lumonLogo.bloom {
+  filter: hue-rotate(30deg) saturate(3) blur(4px);
+  opacity: 0.8;
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+.lumonLogo.core {
+  filter: hue-rotate(30deg) brightness(1.6) contrast(1.2) blur(0.3px);
+  z-index: 2;
 }
 
 hr {
-  border-top: 3px solid var(--terminal-color);
-  margin: 0.9px 0;
+  border: 1.5px solid var(--terminal-color);
+  margin: 1.5px 0;
+  /* phosphor bloom */
+  box-shadow: var(--box-bloom);
 }
 
 #visibleWindow {
@@ -108,7 +175,6 @@ hr {
 .macrodataContainer {
   overflow: hidden !important; 
   scrollbar-width: none;
-
   -ms-overflow-style: none;
   transition: margin 0.35s ease-in-out;
 }
@@ -120,12 +186,14 @@ hr {
 .numbers {
   font-size: 1.45rem;
   font-family: "severance-numbers";
-  font-weight: bold;
+  font-weight: 700;
   text-align: center;
   aspect-ratio: 1/1;
   display: flex;
   justify-content: center;
   align-items: center;
+  /* phoshor bloom */
+  text-shadow: var(--text-bloom);
   transform: scale(var(--scaleFactor, 1));
   will-change: transform;
 } 
@@ -153,10 +221,21 @@ hr {
 .bin05 {
   position: relative;   
   text-align: center;
-  z-index: 1000;
-  background-color: #02162d;
+  z-index: 500;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+  background: transparent;
+  /* phosphor bloom */
+  box-shadow: var(--box-bloom), inset var(--box-bloom);
+  text-shadow: var(--text-bloom);
+}
+
+/* layer created to help add shadows on filled bin divs.*/
+.bin-fill {
+  position: absolute;
+  inset: 0;
+  background-color: var(--CRT-background-color); /* can't be transparent, because a box isn't see through */
+  z-index: 499;
 }
 
 /* State 0: idle */
@@ -164,11 +243,10 @@ hr {
 .binLid-top.idle {
   position: absolute;
   z-index: 100;
-
   top: 0px;  /* Final position post-animation */
   left: 0px;
   width: calc(100% - 6px);
-  background-color: #02162d;
+  background-color: var(--CRT-background-color); /* can't be transparent, because a box isn't see through */
   height: 11px;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
@@ -183,6 +261,10 @@ hr {
 .binLid-top.opening-sides,
 .binLid-top.closing-sides {
   transform: translateY(-14px);
+  /* phosphor bloom */
+  box-shadow: 
+    var(--box-bloom),
+    inset var(--box-bloom);
 }
 
 /* State 5: Closing Top Lid */
@@ -196,8 +278,8 @@ hr {
   top: -10px; /* sit them perfectly on top of bin's 3px border */
   width: calc(50% - 3px);
   height: 6px;
-  z-Index: 10;
-  background-color: #02162d;
+  z-Index: 99;
+  background-color: var(--CRT-background-color); /* can't be transparent, because a box isn't see through */
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
   visibility: hidden;
@@ -220,6 +302,10 @@ hr {
 .binLid-left.closing-sides,
 .binLid-right.closing-sides {
   visibility: visible;
+  /* phosphor bloom */
+  box-shadow: 
+    var(--box-bloom),
+    inset var(--box-bloom);
 }
 
 /* Step 2: Animate Side Lids Opening */
@@ -272,17 +358,26 @@ hr {
   padding-left: 3px;
   border: 3px solid var(--terminal-color);
   border-radius: var(--border-radius);
+  /* phosphor bloom */
+  box-shadow: var(--box-bloom), inset var(--box-bloom);
+  text-shadow: var(--text-bloom);
 }
 
 .flying-item-container {
   font-size: 1.45rem;
   font-family: "severance-numbers";
-  z-index: -10;
+  z-index: 20;
+  text-shadow: var(--text-bloom);
+  transform: scale(var(--scaleFactor, 1)), translateZ(0);
 }
 
 footer {
   text-align: center;
   font-size: 1.3rem;
+  /* phosphor bloom */
+  text-shadow: var(--text-bloom);
+  transform: scale(var(--scaleFactor, 1));
+  padding: 0 0 0.5vh 0;
 }
 
 /* When the screen is too small to operate the refinement process, we show the error component with Sevy */
@@ -312,7 +407,7 @@ footer {
   }
 
   /* Make the MDR display components hidden when the screen is too small to operate it properly */
-  #root > :not(:first-child) { 
+  #root > :not(:first-child) {
     display: none;
   }
 

@@ -3,7 +3,7 @@ import { useSpring, animated } from 'react-spring';
 function FlyingItem({ id, value, scale, startRect, endRect, onComplete }) {
   const props = useSpring({
     from: {
-      position: 'fixed', // element now positioned relative to the viewport.
+      position: 'absolute', // element now positioned relative to the viewport.
       left: `${startRect.left}px`,
       top: `${startRect.top}px`,
       width: `${startRect.width}px`,

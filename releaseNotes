@@ -1,3 +1,8 @@
-1- limited the eventListeners to visibleWindow in lieu of document
+v2 Notes:
 
-
++ Overhauled of the look to meet the Data General Dasher feel
+  - Phosphor bloom
+  - Scan lines
+  - Vignette
++ Removed text selection from the floating numbers
++ Made target bin calculation sturdier
